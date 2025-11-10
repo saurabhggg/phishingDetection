@@ -193,6 +193,37 @@ def extract_features(url: str) -> dict:
 # ------------------------------
 # MAIN
 # ------------------------------
+def json_safe(obj):
+    """Convert numpy/int64/float64/etc. to pure Python types for JSON serialization."""
+    if isinstance(obj, (np.integer,)):
+        return int(obj)
+    elif isinstance(obj, (np.floating,)):
+        return float(obj)
+    elif isinstance(obj, (np.bool_)):
+        return bool(obj)
+    elif isinstance(obj, (set,)):
+        return list(obj)
+    elif isinstance(obj, bytes):
+        return obj.decode(errors='ignore')
+    elif isinstance(obj, (dict, list)):
+        if isinstance(obj, dict):
+            return {k: json_safe(v) for k, v in obj.items()}
+        else:
+            return [json_safe(v) for v in obj]
+    else:
+        return obj
+
+
+def save_cache(cache: dict):
+    """Safely write cache to disk."""
+    try:
+        safe_cache = json_safe(cache)
+        with open(CACHE_FILE, "w") as fp:
+            json.dump(safe_cache, fp, indent=2)
+    except Exception as e:
+        print(f"⚠️ Failed to save cache: {e}")
+
+
 def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
     cache = {}
     if os.path.exists(CACHE_FILE):
@@ -231,16 +262,15 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
             feats["source"] = f
             rows.append(feats)
 
-            # save cache checkpoint every 100
+            # checkpoint every 100 rows
             if len(rows) % 100 == 0:
-                with open(CACHE_FILE, "w") as fp:
-                    json.dump(cache, fp)
+                save_cache(cache)
 
     df_out = pd.DataFrame(rows)
     df_out.to_csv(output_csv, index=False)
     print(f"✅ Dataset saved: {output_csv} | Samples: {len(df_out)}")
-    with open(CACHE_FILE, "w") as fp:
-        json.dump(cache, fp)
+    save_cache(cache)
+
 
 # ------------------------------
 # CLI
