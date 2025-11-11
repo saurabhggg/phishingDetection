@@ -1,544 +1,161 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-PS-02 Submission Builder – Model Inference + Evidences + Excel
---------------------------------------------------------------
-
-Inputs:
-- Relevance CSV: rows with CSE relation (e.g., CSE_Relevance_Output.csv)
-- Trained model + scaler in ./outputs/
-  - auto-picks the newest *_balanced.pkl (or falls back to any .pkl) + scaler.pkl
-
-Outputs (per Annexure-B):
-PS-02_<APPID>_Submission/
-├── PS-02_<APPID>_Submission_Set.xlsx
-├── PS-02_<APPID>_Evidences/
-│   └── <CSE>_<two-level-domain>_<serial>.pdf
-└── PS-02_<APPID>_Documentation_folder/
-    └── (placeholder for your report)
-
-Notes:
-- Uses open/public sources only: rdap.org, DNS, optional ip-api.com (free)
-- Screenshot via Selenium (Chrome/Chromium); if not available, writes a blank PDF.
-- Resumable: if a PDF already exists for that row, it won’t re-screenshot.
+generate_submission.py – Robust version
+---------------------------------------
+✅ Automatically aligns features with training schema
+✅ Fixes string→float, missing columns, and unseen feature issues
+✅ Predicts using trained model on CSE relevance outputs
+✅ Saves screenshots for flagged (phishing) URLs
 """
 
-import os
-import io
-import re
-import sys
-import json
-import time
-import math
-import glob
-import socket
-import argparse
-import logging
-import hashlib
-from pathlib import Path
-from datetime import datetime
-from urllib.parse import urlparse
+import os, json, time, hashlib, joblib
+import pandas as pd, numpy as np
+from tqdm import tqdm
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
-import requests
-import pandas as pd
-from PIL import Image
-from io import BytesIO
+# ---------------------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------------------
+INPUT_FILE = "CSE_Relevance_Output.csv"
+OUTPUT_FILE = "submission_results.csv"
+CACHE_FILE = "submission_cache.json"
 
-# Optional deps that we try to use if present
-try:
-    import dns.resolver  # dnspython
-except Exception:
-    dns = None
+MODEL_DIR = "outputs"
+SCALER_PATH = os.path.join(MODEL_DIR, "scaler.pkl")
+SCREENSHOT_DIR = "screenshots"
+os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 
-try:
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
-except Exception:
-    webdriver = None
-
-# Try your feature extractor first (fast/extended)
-EXTRACTOR = None
-try:
-    from model.feature_extractor import extract_features as _fx
-    EXTRACTOR = _fx
-except Exception:
+# ---------------------------------------------------------------------
+# MODEL LOADER
+# ---------------------------------------------------------------------
+def load_best_model():
+    models = [f for f in os.listdir(MODEL_DIR) if f.endswith("_balanced.pkl")]
+    if not models:
+        raise FileNotFoundError("❌ No trained models found in /outputs/")
+    best_model = sorted(models)[0]
+    print(f"✅ Loading model: {best_model}")
+    model = joblib.load(os.path.join(MODEL_DIR, best_model))
+    scaler = joblib.load(SCALER_PATH) if os.path.exists(SCALER_PATH) else None
+    # Get training feature names if available
     try:
-        from model.feature_extractor import extract_features as _fx2
-        EXTRACTOR = _fx2
-    except Exception:
-        EXTRACTOR = None
+        feature_names = model.feature_names_in_.tolist()
+    except AttributeError:
+        feature_names = None
+    return model, scaler, feature_names
 
-import joblib
+# ---------------------------------------------------------------------
+# UTILS
+# ---------------------------------------------------------------------
+def safe_filename(url):
+    return os.path.join(SCREENSHOT_DIR, hashlib.md5(url.encode()).hexdigest()[:10] + ".png")
 
-# ----------------------------
-# Config (can be overridden by CLI)
-# ----------------------------
-DEFAULT_APP_ID = "AIGR-S74001"
-DEFAULT_RELEVANCE_CSV = "CSE_Relevance_Output.csv"
-PROBLEM_NUM = "PS-02"
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
-}
-
-PARKED_KEYWORDS = [
-    "coming soon","under construction","domain for sale","buy this domain",
-    "parkingcrew","afternic","sedo","bodis","godaddy",
-    "this site can’t be reached","this site can't be reached",
-    "apache2 debian default page","welcome to nginx","account suspended","site suspended"
-]
-
-# CSE mapping for official domain list (for Excel "Corresponding CSE Domain Name")
-CSE_DEFS = {
-    "SBI":   {"official_domains": ["onlinesbi.sbi","sbi.co.in","sbicard.com","sbilife.co.in","sbiepay.sbi"]},
-    "ICICI": {"official_domains": ["icicibank.com","icicidirect.com","iciciprulife.com","icicilombard.com"]},
-    "HDFC":  {"official_domains": ["hdfcbank.com","hdfclife.com","hdfcergo.com"]},
-    "PNB":   {"official_domains": ["pnbindia.in","netpnb.com"]},
-    "BoB":   {"official_domains": ["bankofbaroda.in","bankofbaroda.com","bobibanking.com"]},
-    "NIC":   {"official_domains": ["nic.in","gov.in","kavach.gov.in"]},
-    "IRCTC": {"official_domains": ["irctc.co.in"]},
-    "Airtel":{"official_domains": ["airtel.in"]},
-    "IOCL":  {"official_domains": ["iocl.com","indianoil.in"]},
-}
-
-# ----------------------------
-# Logging
-# ----------------------------
-def setup_logger(log_path: Path):
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    logger = logging.getLogger("submission")
-    logger.setLevel(logging.INFO)
-    logger.handlers.clear()
-    fh = logging.FileHandler(log_path, encoding="utf-8")
-    fh.setLevel(logging.INFO)
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    fmt = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s", "%Y-%m-%d %H:%M:%S")
-    fh.setFormatter(fmt)
-    ch.setFormatter(fmt)
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    return logger
-
-# ----------------------------
-# Utilities
-# ----------------------------
-def ensure_dirs(root: Path, app_id: str):
-    base = Path(f"{PROBLEM_NUM}_{app_id}_Submission")
-    evid = base / f"{PROBLEM_NUM}_{app_id}_Evidences"
-    docs = base / f"{PROBLEM_NUM}_{app_id}_Documentation_folder"
-    base.mkdir(parents=True, exist_ok=True)
-    evid.mkdir(parents=True, exist_ok=True)
-    docs.mkdir(parents=True, exist_ok=True)
-    return base, evid, docs
-
-def load_best_model(outputs_dir: Path, logger) -> tuple[object, object]:
-    """Pick newest *_balanced.pkl (else any .pkl). Load scaler.pkl if available."""
-    pkl_list = sorted(outputs_dir.glob("*_balanced.pkl"), key=lambda p: p.stat().st_mtime, reverse=True)
-    if not pkl_list:
-        pkl_list = sorted(outputs_dir.glob("*.pkl"), key=lambda p: p.stat().st_mtime, reverse=True)
-    if not pkl_list:
-        raise FileNotFoundError("No model .pkl found in ./outputs/")
-    model_path = pkl_list[0]
-    logger.info(f"🔹 Using model: {model_path.name}")
-    model = joblib.load(model_path)
-
-    scaler = None
-    scaler_path = outputs_dir / "scaler.pkl"
-    if scaler_path.exists():
-        scaler = joblib.load(scaler_path)
-        logger.info("🔹 Loaded scaler.pkl")
-    else:
-        logger.info("ℹ️ No scaler.pkl found; will feed raw features to model.")
-    return model, scaler
-
-def normalize_domain(d: str) -> str:
-    d = (d or "").strip().lower()
-    d = re.sub(r"^https?://", "", d, flags=re.I)
-    return d.split("/")[0]
-
-def safe_two_level_name(domain: str) -> str:
-    """
-    Convert 'aa.bb.cc.tld' -> 'bb.cc.tld' (max 1 subdomain level)
-    """
-    parts = domain.split(".")
-    if len(parts) < 2:  # no suffix?
-        return domain
-    # Keep last 2+1 parts if available
-    if len(parts) >= 3:
-        return ".".join(parts[-3:])
-    return ".".join(parts[-2:])
-
-def is_parked_or_empty(domain: str, timeout=8) -> bool:
+def capture_screenshot(url, out_path):
     try:
-        for scheme in ("https", "http"):
-            url = f"{scheme}://{domain}"
-            r = requests.get(url, timeout=timeout, headers=HEADERS)
-            html = (r.text or "").lower()
-            if r.status_code != 200:
-                continue
-            if len(html) < 600:
-                return True
-            if any(k in html for k in PARKED_KEYWORDS):
-                return True
-            # If got some decent HTML, treat as not parked
-            return False
-        return True
-    except Exception:
-        return True
-
-def screenshot_to_pdf(domain: str, out_pdf: Path, logger, width=1280, height=720):
-    """
-    Try Selenium → PNG → single-page PDF. If Selenium unavailable/fails, write blank PDF.
-    """
-    try:
-        if webdriver is None:
-            raise RuntimeError("Selenium not available")
-
-        chrome_options = Options()
-        chrome_options.add_argument("--headless=new")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument(f"--window-size={width},{height}")
-
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.set_page_load_timeout(12)
-
-        url = f"http://{domain}"
-        driver.get(url)
-        png = driver.get_screenshot_as_png()
+        opts = Options()
+        opts.add_argument("--headless=new")
+        opts.add_argument("--no-sandbox")
+        opts.add_argument("--disable-dev-shm-usage")
+        opts.add_argument("--window-size=1280,800")
+        driver = webdriver.Chrome(options=opts)
+        driver.set_page_load_timeout(10)
+        driver.get(url if url.startswith("http") else f"http://{url}")
+        time.sleep(2)
+        driver.save_screenshot(out_path)
         driver.quit()
-
-        img = Image.open(BytesIO(png))
-        if img.mode != "RGB":
-            img = img.convert("RGB")
-        img.save(out_pdf, "PDF", resolution=180.0)
         return True
     except Exception as e:
-        logger.info(f"📄 Screenshot fallback for {domain}: {e}")
-        # blank placeholder
-        img_blank = Image.new("RGB", (width, height), (255, 255, 255))
-        img_blank.save(out_pdf, "PDF", resolution=180.0)
+        print(f"⚠️ Screenshot failed for {url[:60]}: {e}")
         return False
 
-def rdap_fetch(domain: str, logger) -> dict:
-    """
-    WHOIS/RDAP fields needed: creation date, registrar, registrant org/country, nameservers.
-    """
-    out = {
-        "creation_date": "",
-        "registrar": "",
-        "registrant_org": "",
-        "registrant_name": "",
-        "registrant_country": "",
-        "nameservers": []
-    }
-    try:
-        r = requests.get(f"https://rdap.org/domain/{domain}", timeout=10, headers=HEADERS)
-        if r.status_code != 200:
-            return out
-        data = r.json()
+def load_cache():
+    return json.load(open(CACHE_FILE)) if os.path.exists(CACHE_FILE) else {}
 
-        # created
-        for e in data.get("events", []):
-            if e.get("eventAction") == "registration":
-                out["creation_date"] = e.get("eventDate", "")
-                break
+def save_cache(cache):
+    with open(CACHE_FILE, "w") as f:
+        json.dump(cache, f, indent=2)
 
-        # entities
-        for ent in data.get("entities", []):
-            roles = ent.get("roles", [])
-            vcard = ent.get("vcardArray", [])
-            if "registrar" in roles and not out["registrar"]:
-                out["registrar"] = ent.get("handle", "") or ""
-                # Sometimes registrar name is inside vcard
-                if vcard and len(vcard) == 2:
-                    for row in vcard[1]:
-                        if row[0] in ("org", "fn"):
-                            out["registrar"] = row[3]
-                            break
-            if any(r in roles for r in ["registrant", "administrative", "technical"]):
-                if vcard and len(vcard) == 2:
-                    for row in vcard[1]:
-                        if row[0] == "org":
-                            out["registrant_org"] = row[3]
-                        if row[0] == "fn":
-                            out["registrant_name"] = row[3]
-                        if row[0] == "adr":
-                            adr = row[3]
-                            if isinstance(adr, list) and len(adr) >= 7:
-                                out["registrant_country"] = adr[-1]
-        # nameservers
-        out["nameservers"] = [ns.get("ldhName") for ns in data.get("nameservers", []) if ns.get("ldhName")]
-    except Exception as e:
-        logger.debug(f"RDAP error for {domain}: {e}")
-    return out
+# ---------------------------------------------------------------------
+# ENCODING + ALIGNMENT
+# ---------------------------------------------------------------------
+def encode_and_align(df: pd.DataFrame, train_features: list[str]) -> pd.DataFrame:
+    df = df.fillna(0)
 
-def dns_enrich(domain: str, logger) -> tuple[str, list, dict]:
-    """
-    Return (hosting_ip, nameservers, dns_records) using socket + dnspython if available.
-    """
-    hosting_ip = ""
-    nameservers = []
-    records = {}
-
-    # A/AAAA
-    try:
-        host, aliases, ips = socket.gethostbyname_ex(domain)
-        if ips:
-            hosting_ip = ips[0]
-        records["A"] = ips
-    except Exception:
-        pass
-
-    if dns:
-        try:
-            # NS
-            ns_answers = dns.resolver.resolve(domain, "NS")
-            ns = sorted({str(r.target).rstrip(".") for r in ns_answers})
-            nameservers = ns
-            records["NS"] = ns
-        except Exception:
-            pass
-        try:
-            # MX
-            mx_ans = dns.resolver.resolve(domain, "MX")
-            mx = sorted({str(r.exchange).rstrip(".") for r in mx_ans})
-            records["MX"] = mx
-        except Exception:
-            pass
-        try:
-            # TXT (limit)
-            txt_ans = dns.resolver.resolve(domain, "TXT")
-            txt = []
-            for r in txt_ans:
-                try:
-                    s = b"".join(r.strings).decode("utf-8", "ignore")
-                    txt.append(s)
-                except Exception:
-                    pass
-            if txt:
-                records["TXT"] = txt[:5]
-        except Exception:
-            pass
-
-    # If no NS via dnspython, use RDAP result later
-    return hosting_ip, nameservers, records
-
-def geoip(hosting_ip: str, logger) -> tuple[str, str]:
-    """
-    Optional ISP/Country via ip-api.com (free). Graceful failure returns ("","").
-    """
-    if not hosting_ip:
-        return "", ""
-    try:
-        r = requests.get(f"http://ip-api.com/json/{hosting_ip}?fields=isp,country", timeout=6, headers=HEADERS)
-        if r.status_code == 200:
-            data = r.json()
-            return data.get("isp", "") or "", data.get("country", "") or ""
-    except Exception as e:
-        logger.debug(f"geoip failed for {hosting_ip}: {e}")
-    return "", ""
-
-def load_features_for_model(domain: str, logger) -> dict:
-    """
-    Use your extractor if available. As a fallback, a minimal lexical set.
-    """
-    if EXTRACTOR:
-        try:
-            feats = EXTRACTOR(domain)
-            # Ensure plain Python types (no numpy types) for model/scaler
-            clean = {}
-            for k, v in feats.items():
-                if hasattr(v, "item"):
-                    clean[k] = v.item()
-                else:
-                    clean[k] = v
-            return clean
-        except Exception as e:
-            logger.debug(f"extract_features() failed for {domain}: {e}")
-
-    # Fallback minimal features (keep names stable with your training if possible)
-    d = domain
-    url = f"http://{domain}"
-    return {
-        "url_length": len(url),
-        "num_dots": d.count("."),
-        "num_hyphens": d.count("-"),
-        "num_underscores": d.count("_"),
-        "num_slashes": url.count("/"),
-        "num_digits": sum(c.isdigit() for c in d),
-        "digit_ratio": (sum(c.isdigit() for c in d) / (len(d) + 1e-5)),
-        "entropy_domain": (lambda s: -sum((s.count(ch)/len(s))*math.log2((s.count(ch)/len(s)))
-                                          for ch in set(s))) (d) if d else 0.0,
-        "https": 0,
-        "has_ip_host": 1 if re.fullmatch(r"(?:\d{1,3}\.){3}\d{1,3}", d) else 0,
-    }
-
-def predict_label(model, scaler, feats_df_row) -> tuple[int, float]:
-    """
-    Return (pred, prob1). If scaler is present, apply to feature vector.
-    """
-    X = feats_df_row.values.reshape(1, -1)
-    if scaler is not None:
-        try:
-            Xs = scaler.transform(X)
-        except Exception:
-            Xs = X
-    else:
-        Xs = X
-
-    pred = int(model.predict(Xs)[0])
-    prob = None
-    if hasattr(model, "predict_proba"):
-        try:
-            prob = float(model.predict_proba(Xs)[0][1])
-        except Exception:
-            prob = None
-    return pred, (prob if prob is not None else 0.0)
-
-# ----------------------------
-# Main
-# ----------------------------
-def main():
-    ap = argparse.ArgumentParser(description="PS-02 Submission Builder (Model + Evidences + Excel)")
-    ap.add_argument("--app-id", default=DEFAULT_APP_ID, help="Application ID (folder naming)")
-    ap.add_argument("--relevance", default=DEFAULT_RELEVANCE_CSV, help="Path to CSE relevance CSV")
-    ap.add_argument("--outputs-dir", default="outputs", help="Directory containing model/scaler")
-    ap.add_argument("--limit", type=int, default=0, help="Optional cap for debugging")
-    ap.add_argument("--log", default="submission_build.log", help="Log file path")
-    args = ap.parse_args()
-
-    logger = setup_logger(Path(args.log))
-    logger.info("🚀 Starting PS-02 submission builder")
-    logger.info(f"App ID: {args.app_id}")
-
-    base_dir, evid_dir, docs_dir = ensure_dirs(Path("."), args.app_id)
-    excel_out = base_dir / f"{PROBLEM_NUM}_{args.app_id}_Submission_Set.xlsx"
-
-    # Load model + scaler
-    model, scaler = load_best_model(Path(args.outputs_dir), logger)
-
-    # Read relevance CSV
-    if not Path(args.relevance).exists():
-        logger.error(f"Missing relevance CSV: {args.relevance}")
-        sys.exit(1)
-
-    rel = pd.read_csv(args.relevance)
-    # Expect columns: Domain, Related_CSE (non-empty), etc.
-    if "Domain" not in rel.columns:
-        logger.error("Relevance CSV must have a 'Domain' column.")
-        sys.exit(1)
-
-    # Keep only related rows if present; else use all
-    if "Related_CSE" in rel.columns:
-        rel = rel[(rel["Related_CSE"].astype(str).str.len() > 0) & (rel["Status"].astype(str) == "related")] if "Status" in rel.columns else rel[rel["Related_CSE"].astype(str).str.len() > 0]
-
-    # Apply limit for debugging
-    if args.limit and args.limit > 0:
-        rel = rel.head(args.limit).copy()
-
-    rel["Domain"] = rel["Domain"].astype(str).str.lower().str.strip()
-    rel = rel.drop_duplicates(subset=["Domain"]).reset_index(drop=True)
-
-    # Build feature frame progressively
-    rows_excel = []
-    serial_no = 1
-    processed = 0
-    t0 = time.time()
-
-    # Determine model feature names by trying the first feature mapping
-    # We'll build a consistent column order after first item
-    feature_columns = None
-
-    for idx, row in rel.iterrows():
-        domain = normalize_domain(row["Domain"])
-        cse = (row.get("Related_CSE") or "").strip()
-        if not domain:
-            continue
-
-        # Model features
-        feats = load_features_for_model(domain, logger)
-        if feature_columns is None:
-            feature_columns = list(feats.keys())
-        # Ensure consistent order and fill missing
-        feats_ordered = {k: feats.get(k, 0) for k in feature_columns}
-        feats_df_row = pd.Series(feats_ordered, index=feature_columns, dtype="float64")
-
-        # Predict
-        pred, prob1 = predict_label(model, scaler, feats_df_row)
-
-        # Suspected heuristic
-        label = None
-        if pred == 1:
-            parked = is_parked_or_empty(domain)
-            label = "Suspected" if parked else "Phishing"
+    # Encode non-numeric features
+    for col in df.columns:
+        if df[col].dtype == "object":
+            df[col] = df[col].astype("category").cat.codes
+        elif df[col].dtype == "bool":
+            df[col] = df[col].astype("int")
         else:
-            # skip benign; PS-02 wants phishing/suspected
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+
+    if not train_features:
+        return df  # fallback
+
+    # Align columns to match training schema
+    for feat in train_features:
+        if feat not in df.columns:
+            df[feat] = 0  # missing -> fill with 0
+    df = df[train_features]  # drop extras
+    return df
+
+# ---------------------------------------------------------------------
+# MAIN PIPELINE
+# ---------------------------------------------------------------------
+def main():
+    print("🚀 Generating submission predictions...")
+    model, scaler, train_features = load_best_model()
+    cache = load_cache()
+
+    if not os.path.exists(INPUT_FILE):
+        raise FileNotFoundError(f"❌ Missing input file: {INPUT_FILE}")
+
+    df = pd.read_csv(INPUT_FILE)
+    print(f"📥 Loaded {len(df)} candidate domains")
+
+    # Encode & align
+    feats_df = encode_and_align(df.copy(), train_features)
+
+    results = []
+    for _, row in tqdm(df.iterrows(), total=len(df), desc="🔍 Predicting"):
+        domain = str(row.get("Domain", ""))
+        if domain in cache:
+            results.append(cache[domain])
             continue
 
-        # RDAP + DNS + GeoIP
-        who = rdap_fetch(domain, logger)
-        hosting_ip, ns_dns, dns_records = dns_enrich(domain, logger)
-        if not ns_dns:  # fallback to RDAP NS if DNS missing
-            ns_dns = who.get("nameservers") or []
-        isp, country_host = geoip(hosting_ip, logger)
+        X_row = feats_df.iloc[[_]]
+        X_scaled = scaler.transform(X_row) if scaler is not None else X_row
+        prob = float(model.predict_proba(X_scaled)[:, 1][0])
+        label = int(prob >= 0.5)
 
-        # Evidence PDF
-        pdf_name = f"{cse or 'CSE'}_{safe_two_level_name(domain)}_{serial_no}.pdf"
-        pdf_path = evid_dir / pdf_name
-        if not pdf_path.exists():  # resumable: don't redo screenshots
-            screenshot_to_pdf(domain, pdf_path, logger)
+        screenshot_path = ""
+        if label == 1:
+            screenshot_path = safe_filename(domain)
+            capture_screenshot(domain, screenshot_path)
 
-        # Detection time (now)
-        now = datetime.now()
-        detect_date = now.strftime("%d-%m-%Y")
-        detect_time = now.strftime("%H-%M-%S")
-
-        # Annexure-B row
-        row_out = {
-            "Application_ID": args.app_id,
-            "Source of detection": "CSE Relevance Classifier + Phishing Model",
-            "Identified Phishing/Suspected Domain Name": domain,
-            "Corresponding CSE Domain Name": ", ".join(CSE_DEFS.get(cse, {}).get("official_domains", [])),
-            "Critical Sector Entity Name": cse,
-            "Phishing/Suspected Domains (i.e. Class Label)": label,
-            "Domain Registration Date": who.get("creation_date", ""),
-            "Registrar Name": who.get("registrar", ""),
-            "Registrant Name or Registrant Organisation": (who.get("registrant_name") or who.get("registrant_org") or ""),
-            "Registrant Country": who.get("registrant_country", ""),
-            "Name Servers": ", ".join(ns_dns),
-            "Hosting IP": hosting_ip,
-            "Hosting ISP": isp,
-            "Hosting Country": country_host,
-            "DNS Records (if any)": json.dumps(dns_records, ensure_ascii=False),
-            "Evidence file name": pdf_name,
-            "Date of detection (DD-MM-YYYY)": detect_date,
-            "Time of detection (HH-MM-SS)": detect_time,
-            "Date of Post (If detection is from Source: social media)": "",
-            "Remarks (If any)": f"ModelProb={prob1:.4f}"
+        out = {
+            "Domain": domain,
+            "Predicted_Label": label,
+            "Phishing_Score": round(prob, 4),
+            "Related_CSE": row.get("Related_CSE", ""),
+            "Relation_Score": row.get("Relation_Score", 0),
+            "Screenshot_Path": screenshot_path,
         }
-        rows_excel.append(row_out)
+        results.append(out)
+        cache[domain] = out
 
-        serial_no += 1
-        processed += 1
-        if processed % 50 == 0:
-            elapsed = time.time() - t0
-            logger.info(f"… progress {processed}/{len(rel)} rows | elapsed {elapsed/60:.1f} min")
+        if len(results) % 100 == 0:
+            pd.DataFrame(results).to_csv(OUTPUT_FILE, index=False)
+            save_cache(cache)
+            print(f"💾 Checkpoint saved ({len(results)} / {len(df)})")
 
-    if not rows_excel:
-        logger.warning("No phishing/suspected rows produced. Nothing to write.")
-        sys.exit(0)
+    pd.DataFrame(results).to_csv(OUTPUT_FILE, index=False)
+    save_cache(cache)
+    print(f"✅ Done. Results saved to {OUTPUT_FILE}")
+    print(f"📸 Screenshots saved in {SCREENSHOT_DIR}/")
 
-    # Write Excel
-    df_out = pd.DataFrame(rows_excel)
-    df_out.to_excel(excel_out, index=False)
-    logger.info(f"✅ Wrote Excel: {excel_out}")
-
-    logger.info(f"📁 Evidences in: {evid_dir}")
-    logger.info(f"🧾 Docs folder: {docs_dir} (place your report here)")
-    logger.info("✅ Submission pack ready. Zip the folder for upload.")
-
+# ---------------------------------------------------------------------
 if __name__ == "__main__":
     main()
