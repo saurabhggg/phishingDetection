@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 from tldextract import extract
 from PIL import Image
 import imagehash
+from urllib.parse import urlsplit, urlunsplit, quote, quote_plus
 
 # ------------------------------
 # CONFIG
@@ -49,6 +50,67 @@ CSE_FAVICONS = {
 # ------------------------------
 # UTILS
 # ------------------------------
+
+import ipaddress
+from urllib.parse import urlsplit, urlunsplit, quote, quote_plus
+
+def safe_url(url: str) -> str:
+    """
+    Safely normalize and validate URLs.
+    Prevents Invalid IPv6 URL errors and malformed host issues.
+    Returns cleaned URL or "" if unsafe.
+    """
+    try:
+        if not url or not isinstance(url, str):
+            return ""
+
+        # Trim and clean whitespace
+        url = url.strip().replace(" ", "").replace("\n", "")
+        if not url:
+            return ""
+
+        # Add scheme if missing
+        if not re.match(r"^https?://", url, flags=re.I):
+            url = "http://" + url
+
+        # Quick reject for weird patterns
+        if "::::" in url or ".." in url or url.count("::") > 1:
+            return ""
+
+        # Attempt to parse safely
+        try:
+            parsed = urlsplit(url)
+        except ValueError:
+            return ""  # malformed URL structure
+
+        host = parsed.hostname or ""
+        if not host:
+            return ""
+
+        # IPv6 handling
+        if ":" in host:
+            try:
+                ipaddress.ip_address(host)  # valid IPv6 or IPv4
+                if ":" in host and not host.startswith("["):
+                    host = f"[{host}]"
+            except ValueError:
+                return ""  # malformed IPv6, skip
+
+        # Build valid URL again
+        netloc = host
+        if parsed.port:
+            netloc += f":{parsed.port}"
+
+        path = quote(parsed.path or "", safe="/")
+        query = quote_plus(parsed.query or "", safe="=&")
+        fragment = quote_plus(parsed.fragment or "")
+
+        rebuilt = urlunsplit((parsed.scheme, netloc, path, query, fragment))
+        return rebuilt
+    except Exception:
+        return ""
+
+    
 def shannon_entropy(s: str) -> float:
     if not s: return 0.0
     prob = [freq / len(s) for freq in Counter(s).values()]
@@ -57,16 +119,27 @@ def shannon_entropy(s: str) -> float:
 def has_ip_address(host: str) -> bool:
     return bool(re.fullmatch(r"(?:\d{1,3}\.){3}\d{1,3}", host))
 
+
 def fetch_page_html(url: str, timeout: int = 10) -> str:
+    """
+    Fetch page content safely — skips invalid IPv6 and malformed URLs.
+    """
+    url = safe_url(url)
+    if not url:
+        print(f"⚠️ Skipping invalid or malformed URL: {url}")
+        return ""
     try:
-        if not url.startswith("http"):
-            url = "http://" + url
         r = requests.get(url, timeout=timeout, headers={"User-Agent": "Mozilla/5.0"})
         if "text/html" in r.headers.get("Content-Type", ""):
             return r.text
-    except Exception:
+    except requests.exceptions.RequestException as e:
+        print(f"⚠️ Request failed for {url[:60]}... | {e}")
+        return ""
+    except Exception as e:
+        print(f"⚠️ Unexpected error fetching {url[:60]}... | {e}")
         return ""
     return ""
+
 
 def extract_html_features(html: str) -> dict:
     feats = {
@@ -132,19 +205,58 @@ def compare_with_cse_favicons(fav_hash: str, cse_lib: dict) -> tuple[str, int]:
                 continue
     return best_cse, best_dist
 
+def clean_url(url):
+    """Ensure valid URL format and strip unwanted prefixes."""
+    url = str(url).strip()
+    if not url or url.lower() == "nan":
+        return ""
+    # Ensure scheme exists
+    if not re.match(r'^\w+://', url):
+        url = f"http://{url}"
+    return url
+
 # ------------------------------
 # FEATURE EXTRACTION
 # ------------------------------
 def extract_features(url: str) -> dict:
-    u = str(url).strip()
-    parsed = urlparse(u if "://" in u else f"http://{u}")
+    """
+    Extract all lexical, domain, HTML, and favicon-based features for a URL.
+    Now fully safe against Invalid IPv6 URL and malformed domains.
+    """
+    feats = {}
+
+    # Clean + validate
+    safe_u = safe_url(url)
+    if not safe_u:
+        print(f"⚠️ Skipping invalid or malformed URL: {url}")
+        # return empty but with default zeros for consistency
+        for f in [
+            "url_length","num_dots","num_hyphens","num_underscores","num_slashes",
+            "num_digits","digit_ratio","num_special","num_question","num_equal",
+            "num_dollar","num_exclamation","num_hashtag","num_percent",
+            "repeated_digits_url","domain_length","num_hyphens_domain",
+            "num_special_domain","has_special_domain","subdomain_count",
+            "avg_subdomain_len","subdomain_hyphen","subdomain_repeated_digits",
+            "entropy_url","entropy_domain","https","has_ip_host","is_related_to_cse"
+        ]:
+            feats[f] = 0
+        feats["favicon_match_cse"] = ""
+        feats["favicon_distance"] = 999
+        return feats
+
+    # Parse safely (this will not raise ValueError now)
+    try:
+        parsed = urlsplit(safe_u)
+    except Exception:
+        print(f"⚠️ Parsing failed for {url}")
+        return {}
+
+    # Extract main URL components
+    u = safe_u
     domain_info = extract(parsed.netloc)
     domain = f"{domain_info.domain}.{domain_info.suffix}" if domain_info.suffix else domain_info.domain
     subdomain = domain_info.subdomain or ""
     host = parsed.netloc.lower()
-    url_lower = u.lower()
-
-    feats = {}
 
     # --- FULL URL LEXICAL FEATURES ---
     feats["url_length"] = len(u)
@@ -189,6 +301,7 @@ def extract_features(url: str) -> dict:
     feats["favicon_distance"] = dist
 
     return feats
+
 
 # ------------------------------
 # MAIN
