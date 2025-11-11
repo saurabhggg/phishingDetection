@@ -441,7 +441,7 @@ async def run(input_csv: Path, concurrency: int, save_interval: int):
         logger.error("Input CSV must have a 'Domain' column"); return
     domains=list(src["Domain"].dropna().astype(str).str.lower().unique())
     total=len(domains)
-    print("domains length" + len(domains))
+    print("domains length" + str(len(domains)))
 
     cache=load_json(CACHE_FILE,{})
     rows_out=[]; done=set()
