@@ -1,0 +1,208 @@
+2025-11-11 07:09:50.659 | INFO     | __main__:cancel_handler:460 - 🛑 Signal received. Exiting after last checkpoint…
+2025-11-11 07:13:32.005 | INFO     | __main__:run:426 - ✅ Official favicon library: SBI:2, ICICI:1, HDFC:1, PNB:1, BoB:0, NIC:0, IRCTC:0, Airtel:1, IOCL:0
+2025-11-11 07:13:34.441 | INFO     | __main__:ensure_sem:138 - 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 ...
+2025-11-11 07:14:34.139 | INFO     | __main__:task:438 - … progress 200/1785819 | out=4 | cache=201
+2025-11-11 07:15:41.584 | INFO     | __main__:task:438 - … progress 400/1785819 | out=9 | cache=401
+2025-11-11 07:16:39.641 | INFO     | __main__:task:438 - … progress 600/1785819 | out=11 | cache=601
+2025-11-11 07:17:19.706 | INFO     | __main__:task:438 - … progress 800/1785819 | out=12 | cache=801
+2025-11-11 07:17:58.882 | INFO     | __main__:task:438 - … progress 1000/1785819 | out=18 | cache=1001
+2025-11-11 07:18:57.702 | INFO     | __main__:task:438 - … progress 1200/1785819 | out=21 | cache=1201
+2025-11-11 07:19:46.102 | INFO     | __main__:task:438 - … progress 1400/1785819 | out=24 | cache=1401
+2025-11-11 07:20:44.683 | INFO     | __main__:task:438 - … progress 1600/1785819 | out=30 | cache=1601
+2025-11-11 07:21:22.917 | INFO     | __main__:task:438 - … progress 1800/1785819 | out=36 | cache=1801
+2025-11-11 07:23:21.706 | INFO     | __main__:task:438 - … progress 2000/1785819 | out=39 | cache=2001
+2025-11-11 07:24:22.296 | INFO     | __main__:task:438 - … progress 2200/1785819 | out=40 | cache=2201
+2025-11-11 07:25:11.768 | INFO     | __main__:task:438 - … progress 2400/1785819 | out=41 | cache=2401
+2025-11-11 07:26:11.716 | INFO     | __main__:task:438 - … progress 2600/1785819 | out=48 | cache=2601
+2025-11-11 07:27:24.490 | INFO     | __main__:task:438 - … progress 2800/1785819 | out=55 | cache=2801
+2025-11-11 07:28:21.598 | INFO     | __main__:task:438 - … progress 3000/1785819 | out=55 | cache=3001
+2025-11-11 07:29:20.565 | INFO     | __main__:task:438 - … progress 3200/1785819 | out=60 | cache=3201
+2025-11-11 07:30:04.723 | INFO     | __main__:task:438 - … progress 3400/1785819 | out=64 | cache=3401
+2025-11-11 07:31:16.711 | INFO     | __main__:task:438 - … progress 3600/1785819 | out=69 | cache=3601
+2025-11-11 07:32:43.464 | INFO     | __main__:task:438 - … progress 3800/1785819 | out=74 | cache=3801
+2025-11-11 07:33:54.568 | INFO     | __main__:task:438 - … progress 4000/1785819 | out=77 | cache=4001
+2025-11-11 07:34:33.898 | INFO     | __main__:task:438 - … progress 4200/1785819 | out=79 | cache=4201
+2025-11-11 07:36:34.701 | INFO     | __main__:task:438 - … progress 4400/1785819 | out=82 | cache=4401
+2025-11-11 07:37:10.744 | INFO     | __main__:task:438 - … progress 4600/1785819 | out=87 | cache=4601
+2025-11-11 07:38:58.943 | INFO     | __main__:task:438 - … progress 4800/1785819 | out=89 | cache=4801
+2025-11-11 07:39:42.298 | INFO     | __main__:task:438 - … progress 5000/1785819 | out=93 | cache=5001
+2025-11-11 07:41:03.461 | INFO     | __main__:task:438 - … progress 5200/1785819 | out=98 | cache=5201
+2025-11-11 07:42:25.254 | INFO     | __main__:task:438 - … progress 5400/1785819 | out=104 | cache=5401
+2025-11-11 07:44:36.973 | INFO     | __main__:task:438 - … progress 5600/1785819 | out=107 | cache=5601
+2025-11-11 07:45:26.888 | INFO     | __main__:task:438 - … progress 5800/1785819 | out=113 | cache=5801
+2025-11-11 07:46:12.575 | INFO     | __main__:task:438 - … progress 6000/1785819 | out=119 | cache=6001
+2025-11-11 07:46:51.476 | INFO     | __main__:task:438 - … progress 6200/1785819 | out=122 | cache=6201
+2025-11-11 07:48:42.706 | INFO     | __main__:task:438 - … progress 6400/1785819 | out=123 | cache=6401
+2025-11-11 07:49:32.591 | INFO     | __main__:task:438 - … progress 6600/1785819 | out=127 | cache=6601
+2025-11-11 07:50:43.703 | INFO     | __main__:task:438 - … progress 6800/1785819 | out=131 | cache=6801
+2025-11-11 07:51:19.031 | INFO     | __main__:task:438 - … progress 7000/1785819 | out=131 | cache=7001
+2025-11-11 07:52:29.636 | INFO     | __main__:task:438 - … progress 7200/1785819 | out=135 | cache=7201
+2025-11-11 07:53:15.543 | INFO     | __main__:task:438 - … progress 7400/1785819 | out=138 | cache=7401
+2025-11-11 07:54:04.606 | INFO     | __main__:task:438 - … progress 7600/1785819 | out=143 | cache=7601
+2025-11-11 07:54:49.312 | INFO     | __main__:task:438 - … progress 7800/1785819 | out=149 | cache=7801
+2025-11-11 07:56:36.707 | INFO     | __main__:task:438 - … progress 8000/1785819 | out=150 | cache=8001
+2025-11-11 07:57:08.924 | INFO     | __main__:task:438 - … progress 8200/1785819 | out=153 | cache=8201
+2025-11-11 07:58:20.600 | INFO     | __main__:task:438 - … progress 8400/1785819 | out=157 | cache=8401
+2025-11-11 07:59:33.966 | INFO     | __main__:task:438 - … progress 8600/1785819 | out=167 | cache=8601
+2025-11-11 08:00:46.701 | INFO     | __main__:task:438 - … progress 8800/1785819 | out=169 | cache=8801
+2025-11-11 08:01:49.021 | INFO     | __main__:task:438 - … progress 9000/1785819 | out=169 | cache=9001
+2025-11-11 08:03:10.708 | INFO     | __main__:task:438 - … progress 9200/1785819 | out=171 | cache=9201
+2025-11-11 08:04:06.859 | INFO     | __main__:task:438 - … progress 9400/1785819 | out=173 | cache=9401
+2025-11-11 08:05:18.707 | INFO     | __main__:task:438 - … progress 9600/1785819 | out=178 | cache=9601
+2025-11-11 08:06:41.021 | INFO     | __main__:task:438 - … progress 9800/1785819 | out=179 | cache=9801
+2025-11-11 08:07:52.705 | INFO     | __main__:task:438 - … progress 10000/1785819 | out=185 | cache=10001
+2025-11-11 08:09:12.980 | INFO     | __main__:task:438 - … progress 10200/1785819 | out=187 | cache=10201
+2025-11-11 08:10:41.706 | INFO     | __main__:task:438 - … progress 10400/1785819 | out=191 | cache=10401
+2025-11-11 08:12:04.033 | INFO     | __main__:run:452 - 💾 checkpoint: rows=200 cache=10584 time=58.5m
+2025-11-11 08:12:04.342 | INFO     | __main__:task:438 - … progress 10600/1785819 | out=200 | cache=10601
+2025-11-11 08:13:15.602 | INFO     | __main__:task:438 - … progress 10800/1785819 | out=202 | cache=10801
+2025-11-11 08:14:02.653 | INFO     | __main__:task:438 - … progress 11000/1785819 | out=206 | cache=11001
+2025-11-11 08:16:13.716 | INFO     | __main__:task:438 - … progress 11200/1785819 | out=206 | cache=11201
+2025-11-11 08:17:02.709 | INFO     | __main__:task:438 - … progress 11400/1785819 | out=207 | cache=11401
+2025-11-11 08:18:23.701 | INFO     | __main__:task:438 - … progress 11600/1785819 | out=212 | cache=11601
+2025-11-11 08:19:08.081 | INFO     | __main__:task:438 - … progress 11800/1785819 | out=215 | cache=11801
+2025-11-11 08:20:20.706 | INFO     | __main__:task:438 - … progress 12000/1785819 | out=219 | cache=12001
+2025-11-11 08:21:08.056 | INFO     | __main__:task:438 - … progress 12200/1785819 | out=219 | cache=12201
+2025-11-11 08:22:00.628 | INFO     | __main__:task:438 - … progress 12400/1785819 | out=223 | cache=12401
+2025-11-11 08:23:00.890 | INFO     | __main__:task:438 - … progress 12600/1785819 | out=228 | cache=12601
+2025-11-11 08:24:59.350 | INFO     | __main__:task:438 - … progress 12800/1785819 | out=232 | cache=12801
+2025-11-11 08:26:22.435 | INFO     | __main__:task:438 - … progress 13000/1785819 | out=234 | cache=13001
+2025-11-11 08:27:52.475 | INFO     | __main__:task:438 - … progress 13200/1785819 | out=235 | cache=13201
+2025-11-11 08:29:14.585 | INFO     | __main__:task:438 - … progress 13400/1785819 | out=237 | cache=13401
+2025-11-11 08:30:37.700 | INFO     | __main__:task:438 - … progress 13600/1785819 | out=241 | cache=13601
+2025-11-11 08:31:45.038 | INFO     | __main__:task:438 - … progress 13800/1785819 | out=241 | cache=13801
+2025-11-11 08:33:19.699 | INFO     | __main__:task:438 - … progress 14000/1785819 | out=243 | cache=14001
+2025-11-11 08:34:20.901 | INFO     | __main__:task:438 - … progress 14200/1785819 | out=244 | cache=14201
+2025-11-11 08:36:05.702 | INFO     | __main__:task:438 - … progress 14400/1785819 | out=249 | cache=14401
+2025-11-11 08:37:07.802 | INFO     | __main__:task:438 - … progress 14600/1785819 | out=251 | cache=14601
+2025-11-11 08:38:34.701 | INFO     | __main__:task:438 - … progress 14800/1785819 | out=256 | cache=14801
+2025-11-11 08:39:38.050 | INFO     | __main__:task:438 - … progress 15000/1785819 | out=257 | cache=15001
+2025-11-11 08:41:10.701 | INFO     | __main__:task:438 - … progress 15200/1785819 | out=261 | cache=15201
+2025-11-11 08:42:33.840 | INFO     | __main__:task:438 - … progress 15400/1785819 | out=263 | cache=15401
+2025-11-11 08:44:01.701 | INFO     | __main__:task:438 - … progress 15600/1785819 | out=267 | cache=15601
+2025-11-11 08:45:29.948 | INFO     | __main__:task:438 - … progress 15800/1785819 | out=267 | cache=15801
+2025-11-11 08:47:18.700 | INFO     | __main__:task:438 - … progress 16000/1785819 | out=269 | cache=16001
+2025-11-11 08:48:47.405 | INFO     | __main__:task:438 - … progress 16200/1785819 | out=270 | cache=16201
+2025-11-11 08:50:40.047 | INFO     | __main__:task:438 - … progress 16400/1785819 | out=272 | cache=16401
+2025-11-11 08:51:51.103 | INFO     | __main__:task:438 - … progress 16600/1785819 | out=276 | cache=16601
+2025-11-11 08:54:02.406 | INFO     | __main__:task:438 - … progress 16800/1785819 | out=281 | cache=16801
+2025-11-11 08:55:27.258 | INFO     | __main__:task:438 - … progress 17000/1785819 | out=284 | cache=17001
+2025-11-11 08:57:18.004 | INFO     | __main__:task:438 - … progress 17200/1785819 | out=287 | cache=17201
+2025-11-11 08:58:19.935 | INFO     | __main__:task:438 - … progress 17400/1785819 | out=289 | cache=17401
+2025-11-11 09:00:32.586 | INFO     | __main__:task:438 - … progress 17600/1785819 | out=291 | cache=17601
+2025-11-11 09:02:00.347 | INFO     | __main__:task:438 - … progress 17800/1785819 | out=293 | cache=17801
+2025-11-11 09:03:49.420 | INFO     | __main__:task:438 - … progress 18000/1785819 | out=294 | cache=18001
+2025-11-11 09:05:17.535 | INFO     | __main__:task:438 - … progress 18200/1785819 | out=297 | cache=18201
+2025-11-11 09:08:16.619 | INFO     | __main__:task:438 - … progress 18400/1785819 | out=301 | cache=18401
+2025-11-11 09:09:41.495 | INFO     | __main__:task:438 - … progress 18600/1785819 | out=301 | cache=18601
+2025-11-11 09:11:09.701 | INFO     | __main__:task:438 - … progress 18800/1785819 | out=303 | cache=18801
+2025-11-11 09:12:51.938 | INFO     | __main__:task:438 - … progress 19000/1785819 | out=303 | cache=19001
+2025-11-11 09:15:03.954 | INFO     | __main__:task:438 - … progress 19200/1785819 | out=307 | cache=19201
+2025-11-11 09:16:11.062 | INFO     | __main__:task:438 - … progress 19400/1785819 | out=311 | cache=19401
+2025-11-11 09:18:25.527 | INFO     | __main__:task:438 - … progress 19600/1785819 | out=311 | cache=19601
+2025-11-11 09:19:28.462 | INFO     | __main__:task:438 - … progress 19800/1785819 | out=311 | cache=19801
+2025-11-11 09:21:16.447 | INFO     | __main__:task:438 - … progress 20000/1785819 | out=314 | cache=20001
+2025-11-11 09:22:42.335 | INFO     | __main__:task:438 - … progress 20200/1785819 | out=315 | cache=20201
+2025-11-11 09:24:34.700 | INFO     | __main__:task:438 - … progress 20400/1785819 | out=319 | cache=20401
+2025-11-11 09:25:37.821 | INFO     | __main__:task:438 - … progress 20600/1785819 | out=322 | cache=20601
+2025-11-11 09:27:28.700 | INFO     | __main__:task:438 - … progress 20800/1785819 | out=325 | cache=20801
+2025-11-11 09:28:32.025 | INFO     | __main__:task:438 - … progress 21000/1785819 | out=328 | cache=21001
+2025-11-11 09:30:48.701 | INFO     | __main__:task:438 - … progress 21200/1785819 | out=332 | cache=21201
+2025-11-11 09:32:17.777 | INFO     | __main__:task:438 - … progress 21400/1785819 | out=338 | cache=21401
+2025-11-11 09:34:03.700 | INFO     | __main__:task:438 - … progress 21600/1785819 | out=341 | cache=21601
+2025-11-11 09:35:50.161 | INFO     | __main__:task:438 - … progress 21800/1785819 | out=342 | cache=21801
+2025-11-11 09:38:27.754 | INFO     | __main__:task:438 - … progress 22000/1785819 | out=346 | cache=22001
+2025-11-11 09:40:05.836 | INFO     | __main__:task:438 - … progress 22200/1785819 | out=346 | cache=22201
+2025-11-11 09:42:20.944 | INFO     | __main__:task:438 - … progress 22400/1785819 | out=351 | cache=22401
+2025-11-11 09:43:46.235 | INFO     | __main__:task:438 - … progress 22600/1785819 | out=351 | cache=22601
+2025-11-11 09:45:34.701 | INFO     | __main__:task:438 - … progress 22800/1785819 | out=353 | cache=22801
+2025-11-11 09:46:34.320 | INFO     | __main__:task:438 - … progress 23000/1785819 | out=358 | cache=23001
+2025-11-11 09:48:50.704 | INFO     | __main__:task:438 - … progress 23200/1785819 | out=362 | cache=23201
+2025-11-11 09:49:50.961 | INFO     | __main__:task:438 - … progress 23400/1785819 | out=366 | cache=23401
+2025-11-11 09:51:38.708 | INFO     | __main__:task:438 - … progress 23600/1785819 | out=370 | cache=23601
+2025-11-11 09:52:44.713 | INFO     | __main__:task:438 - … progress 23800/1785819 | out=373 | cache=23801
+2025-11-11 09:54:35.571 | INFO     | __main__:task:438 - … progress 24000/1785819 | out=376 | cache=24001
+2025-11-11 09:55:54.330 | INFO     | __main__:task:438 - … progress 24200/1785819 | out=378 | cache=24201
+2025-11-11 09:57:20.701 | INFO     | __main__:task:438 - … progress 24400/1785819 | out=380 | cache=24401
+2025-11-11 09:58:46.363 | INFO     | __main__:task:438 - … progress 24600/1785819 | out=382 | cache=24601
+2025-11-11 10:00:14.701 | INFO     | __main__:task:438 - … progress 24800/1785819 | out=383 | cache=24801
+2025-11-11 10:01:38.426 | INFO     | __main__:task:438 - … progress 25000/1785819 | out=385 | cache=25001
+2025-11-11 10:03:29.700 | INFO     | __main__:task:438 - … progress 25200/1785819 | out=386 | cache=25201
+2025-11-11 10:04:55.959 | INFO     | __main__:task:438 - … progress 25400/1785819 | out=391 | cache=25401
+2025-11-11 10:06:28.700 | INFO     | __main__:task:438 - … progress 25600/1785819 | out=393 | cache=25601
+2025-11-11 10:07:55.355 | INFO     | __main__:task:438 - … progress 25800/1785819 | out=397 | cache=25801
+2025-11-11 10:10:12.700 | INFO     | __main__:task:438 - … progress 26000/1785819 | out=398 | cache=26001
+2025-11-11 10:11:37.506 | INFO     | __main__:task:438 - … progress 26200/1785819 | out=399 | cache=26201
+2025-11-11 10:11:38.142 | INFO     | __main__:run:452 - 💾 checkpoint: rows=400 cache=26203 time=178.1m
+2025-11-11 10:13:49.700 | INFO     | __main__:task:438 - … progress 26400/1785819 | out=401 | cache=26401
+2025-11-11 10:14:51.369 | INFO     | __main__:task:438 - … progress 26600/1785819 | out=402 | cache=26601
+2025-11-11 10:16:41.700 | INFO     | __main__:task:438 - … progress 26800/1785819 | out=405 | cache=26801
+2025-11-11 10:18:17.132 | INFO     | __main__:task:438 - … progress 27000/1785819 | out=407 | cache=27001
+2025-11-11 10:20:31.541 | INFO     | __main__:task:438 - … progress 27200/1785819 | out=409 | cache=27201
+2025-11-11 10:22:19.224 | INFO     | __main__:task:438 - … progress 27400/1785819 | out=410 | cache=27401
+2025-11-11 10:24:47.259 | INFO     | __main__:task:438 - … progress 27600/1785819 | out=414 | cache=27601
+2025-11-11 10:26:10.616 | INFO     | __main__:task:438 - … progress 27800/1785819 | out=416 | cache=27801
+2025-11-11 10:28:20.975 | INFO     | __main__:cancel_handler:460 - 🛑 Signal received. Exiting after last checkpoint…
+2025-11-11 10:28:39,408 | INFO | ⏩ Resuming: 400 already saved
+2025-11-11 10:28:41,817 | INFO | Total=1785819 | Pending=1785419 | Concurrency=40
+2025-11-11 10:28:41,818 | INFO | 🧠 Precomputing semantic embeddings (batched)…
+2025-11-11 10:28:45,271 | INFO | 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 (batched)…
+2025-11-11 10:32:13,727 | INFO | ✅ Official favicon library: SBI:2, ICICI:1, HDFC:1, PNB:1, BoB:0, NIC:0, IRCTC:0, Airtel:1, IOCL:0
+2025-11-11 10:32:13,734 | INFO | … progress 1000/1785419 | out=400 | cache=26203 | ~1000 domains/min
+2025-11-11 10:32:13,739 | INFO | … progress 2000/1785419 | out=400 | cache=26203 | ~2000 domains/min
+2025-11-11 10:32:13,745 | INFO | … progress 3000/1785419 | out=400 | cache=26203 | ~3000 domains/min
+2025-11-11 10:32:13,750 | INFO | … progress 4000/1785419 | out=400 | cache=26203 | ~4000 domains/min
+2025-11-11 10:32:13,756 | INFO | … progress 5000/1785419 | out=400 | cache=26203 | ~5000 domains/min
+2025-11-11 10:32:13,761 | INFO | … progress 6000/1785419 | out=400 | cache=26203 | ~6000 domains/min
+2025-11-11 10:32:13,767 | INFO | … progress 7000/1785419 | out=400 | cache=26203 | ~7000 domains/min
+2025-11-11 10:32:13,772 | INFO | … progress 8000/1785419 | out=400 | cache=26203 | ~8000 domains/min
+2025-11-11 10:32:13,778 | INFO | … progress 9000/1785419 | out=400 | cache=26203 | ~9000 domains/min
+2025-11-11 10:32:13,783 | INFO | … progress 10000/1785419 | out=400 | cache=26203 | ~10000 domains/min
+2025-11-11 10:32:13,789 | INFO | … progress 11000/1785419 | out=400 | cache=26203 | ~11000 domains/min
+2025-11-11 10:32:13,794 | INFO | … progress 12000/1785419 | out=400 | cache=26203 | ~12000 domains/min
+2025-11-11 10:32:13,800 | INFO | … progress 13000/1785419 | out=400 | cache=26203 | ~13000 domains/min
+2025-11-11 10:32:13,805 | INFO | … progress 14000/1785419 | out=400 | cache=26203 | ~14000 domains/min
+2025-11-11 10:32:13,811 | INFO | … progress 15000/1785419 | out=400 | cache=26203 | ~15000 domains/min
+2025-11-11 10:32:13,816 | INFO | … progress 16000/1785419 | out=400 | cache=26203 | ~16000 domains/min
+2025-11-11 10:32:13,822 | INFO | … progress 17000/1785419 | out=400 | cache=26203 | ~17000 domains/min
+2025-11-11 10:32:13,827 | INFO | … progress 18000/1785419 | out=400 | cache=26203 | ~18000 domains/min
+2025-11-11 10:32:13,833 | INFO | … progress 19000/1785419 | out=400 | cache=26203 | ~19000 domains/min
+2025-11-11 10:32:13,838 | INFO | … progress 20000/1785419 | out=400 | cache=26203 | ~20000 domains/min
+2025-11-11 10:32:13,844 | INFO | … progress 21000/1785419 | out=400 | cache=26203 | ~21000 domains/min
+2025-11-11 10:32:13,849 | INFO | … progress 22000/1785419 | out=400 | cache=26203 | ~22000 domains/min
+2025-11-11 10:32:13,855 | INFO | … progress 23000/1785419 | out=400 | cache=26203 | ~23000 domains/min
+2025-11-11 10:32:13,861 | INFO | … progress 24000/1785419 | out=400 | cache=26203 | ~24000 domains/min
+2025-11-11 10:32:13,866 | INFO | … progress 25000/1785419 | out=400 | cache=26203 | ~25000 domains/min
+2025-11-11 10:33:30,290 | INFO | … progress 26000/1785419 | out=401 | cache=26401 | ~20376 domains/min
+2025-11-11 10:39:10,988 | INFO | … progress 27000/1785419 | out=410 | cache=27401 | ~3882 domains/min
+2025-11-11 10:45:10,493 | INFO | … progress 28000/1785419 | out=424 | cache=28401 | ~2163 domains/min
+2025-11-11 10:50:28,902 | INFO | … progress 29000/1785419 | out=435 | cache=29401 | ~1589 domains/min
+2025-11-11 10:55:55,282 | INFO | … progress 30000/1785419 | out=445 | cache=30401 | ~1266 domains/min
+2025-11-11 11:01:17,260 | INFO | … progress 31000/1785419 | out=452 | cache=31401 | ~1067 domains/min
+2025-11-11 11:06:42,499 | INFO | … progress 32000/1785419 | out=465 | cache=32401 | ~928 domains/min
+2025-11-11 11:11:48,198 | INFO | … progress 33000/1785419 | out=475 | cache=33401 | ~834 domains/min
+2025-11-11 11:16:31,321 | INFO | … progress 34000/1785419 | out=492 | cache=34401 | ~768 domains/min
+2025-11-11 11:22:04,494 | INFO | … progress 35000/1785419 | out=509 | cache=35401 | ~702 domains/min
+2025-11-11 11:27:59,168 | INFO | … progress 36000/1785419 | out=523 | cache=36401 | ~646 domains/min
+2025-11-11 11:32:23,924 | INFO | … progress 37000/1785419 | out=529 | cache=37401 | ~615 domains/min
+2025-11-11 11:38:15,489 | INFO | … progress 38000/1785419 | out=542 | cache=38401 | ~576 domains/min
+2025-11-11 11:43:27,485 | INFO | … progress 39000/1785419 | out=552 | cache=39401 | ~548 domains/min
+2025-11-11 11:48:50,102 | INFO | … progress 40000/1785419 | out=564 | cache=40401 | ~522 domains/min
+2025-11-11 11:53:54,026 | INFO | … progress 41000/1785419 | out=576 | cache=41401 | ~502 domains/min
+2025-11-11 11:59:52,297 | INFO | … progress 42000/1785419 | out=586 | cache=42401 | ~479 domains/min
+2025-11-11 12:04:29,098 | INFO | 💾 checkpoint: rows=600 cache=43342 time=92.3m
+2025-11-11 12:04:46,885 | INFO | … progress 43000/1785419 | out=601 | cache=43401 | ~465 domains/min
+2025-11-11 12:09:54,012 | INFO | … progress 44000/1785419 | out=617 | cache=44401 | ~450 domains/min
+2025-11-11 12:15:55,949 | INFO | … progress 45000/1785419 | out=627 | cache=45401 | ~434 domains/min
+2025-11-11 12:20:47,254 | INFO | … progress 46000/1785419 | out=638 | cache=46401 | ~424 domains/min
+2025-11-11 12:26:08,039 | INFO | … progress 47000/1785419 | out=646 | cache=47401 | ~413 domains/min
+2025-11-11 12:32:08,128 | INFO | … progress 48000/1785419 | out=661 | cache=48401 | ~400 domains/min
+2025-11-11 12:37:59,169 | INFO | … progress 49000/1785419 | out=679 | cache=49401 | ~390 domains/min
+2025-11-11 12:43:38,688 | INFO | … progress 50000/1785419 | out=688 | cache=50401 | ~380 domains/min
+2025-11-11 12:49:16,158 | INFO | … progress 51000/1785419 | out=700 | cache=51401 | ~372 domains/min
+2025-11-11 12:55:27,835 | INFO | … progress 52000/1785419 | out=709 | cache=52401 | ~363 domains/min
+2025-11-11 13:00:42,130 | INFO | … progress 53000/1785419 | out=715 | cache=53401 | ~357 domains/min
+2025-11-11 13:06:27,028 | INFO | … progress 54000/1785419 | out=731 | cache=54401 | ~350 domains/min
+2025-11-11 13:11:16,166 | INFO | … progress 55000/1785419 | out=743 | cache=55401 | ~346 domains/min
+2025-11-11 13:17:29,068 | INFO | … progress 56000/1785419 | out=753 | cache=56401 | ~339 domains/min
+2025-11-11 13:22:26,276 | INFO | … progress 57000/1785419 | out=768 | cache=57401 | ~335 domains/min
