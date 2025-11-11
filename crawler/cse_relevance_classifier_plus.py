@@ -24,17 +24,26 @@ from pathlib import Path
 from datetime import datetime, timezone
 from urllib.parse import urlparse, urljoin
 
+
 import pandas as pd
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer, util
 from PIL import Image
 import imagehash
 
+# Ensure project root is on sys.path so sibling package `utils` can be imported
+import sys
+from pathlib import Path
+_THIS_FILE = Path(__file__).resolve()
+_PROJECT_ROOT = _THIS_FILE.parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
 from utils.logger_config import setup_logger
 from utils.cache_handler import load_json, save_json
 
 # Paths
-IN_FILE   = Path("combine_output.csv")
+IN_FILE   = Path("combined_output.csv")
 OUT_FILE  = Path("CSE_Relevance_Output.csv")
 CACHE_FILE= Path("crawler/cse_relevance_cache_plus.json")
 LOG_FILE  = Path("crawler/cse_relevance_log.txt")
