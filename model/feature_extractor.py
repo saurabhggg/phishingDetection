@@ -342,14 +342,44 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
     if os.path.exists(CACHE_FILE):
         try:
             cache = json.load(open(CACHE_FILE, "r"))
+            print(f"🗂️ Loaded existing cache with {len(cache)} entries.")
         except Exception:
-            pass
+            print("⚠️ Cache load failed, starting fresh.")
+            cache = {}
 
     rows = []
-    whitelist_df = pd.read_excel(whitelist_xlsx)
-    url_col = [c for c in whitelist_df.columns if "url" in c.lower() or "domain" in c.lower()][0]
-    wl_urls = whitelist_df[url_col].dropna().astype(str).tolist()
 
+    # --- Load BOTH whitelisted files ---
+    whitelist_files = [whitelist_xlsx, "whitelisted_new.xlsx"]
+    whitelist_dfs = []
+    wl_total_count = 0
+
+    print("\n📘 Loading whitelisted data...")
+    for file in whitelist_files:
+        if os.path.exists(file):
+            try:
+                df = pd.read_excel(file)
+                url_col = [c for c in df.columns if "url" in c.lower() or "domain" in c.lower()][0]
+                df = df[[url_col]].dropna()
+                df.rename(columns={url_col: "url"}, inplace=True)
+                whitelist_dfs.append(df)
+                wl_total_count += len(df)
+                print(f"✅ Loaded {len(df)} URLs from {file}")
+            except Exception as e:
+                print(f"⚠️ Failed to load {file}: {e}")
+        else:
+            print(f"⚠️ File not found: {file}")
+
+    # Combine and remove duplicates
+    if whitelist_dfs:
+        whitelist_df = pd.concat(whitelist_dfs, ignore_index=True).drop_duplicates(subset=["url"])
+        wl_urls = whitelist_df["url"].astype(str).tolist()
+        print(f"🔹 Total unique whitelisted URLs after merge: {len(wl_urls)} (from {wl_total_count} total entries)")
+    else:
+        print("❌ No valid whitelisted data found.")
+        wl_urls = []
+
+    # --- Process Whitelisted URLs ---
     for u in tqdm(wl_urls, desc="Whitelisted"):
         if u in cache:
             feats = cache[u]
@@ -360,11 +390,22 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
         feats["source"] = "whitelist"
         rows.append(feats)
 
+    # --- Process Phishing URLs ---
     phishing_files = [f for f in os.listdir(phishing_dir) if f.endswith(".xlsx")]
+    ph_total = 0
+
+    print("\n🕷️ Loading phishing data...")
     for f in phishing_files:
-        df = pd.read_excel(os.path.join(phishing_dir, f))
-        url_col = [c for c in df.columns if "url" in c.lower() or "domain" in c.lower()][0]
-        urls = df[url_col].dropna().astype(str).tolist()
+        try:
+            df = pd.read_excel(os.path.join(phishing_dir, f))
+            url_col = [c for c in df.columns if "url" in c.lower() or "domain" in c.lower()][0]
+            urls = df[url_col].dropna().astype(str).tolist()
+            ph_total += len(urls)
+            print(f"✅ Loaded {len(urls)} phishing URLs from {f}")
+        except Exception as e:
+            print(f"⚠️ Failed to read {f}: {e}")
+            continue
+
         for u in tqdm(urls, desc=f"Phishing - {f}"):
             if u in cache:
                 feats = cache[u]
@@ -375,14 +416,28 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
             feats["source"] = f
             rows.append(feats)
 
-            # checkpoint every 100 rows
+            # Checkpoint every 100 processed rows
             if len(rows) % 100 == 0:
                 save_cache(cache)
 
+    # --- Save Final Dataset ---
     df_out = pd.DataFrame(rows)
     df_out.to_csv(output_csv, index=False)
-    print(f"✅ Dataset saved: {output_csv} | Samples: {len(df_out)}")
+    print(f"\n✅ Dataset saved: {output_csv} | Total samples: {len(df_out)}")
+
+    # --- Print Class Summary ---
+    benign_count = len(df_out[df_out["label"] == 0])
+    phishing_count = len(df_out[df_out["label"] == 1])
+
+    print("\n📊 Summary:")
+    print(f"  🟩 Whitelisted (benign): {benign_count}")
+    print(f"  🟥 Phishing: {phishing_count}")
+    print(f"  🧩 Combined Total: {len(df_out)}")
+    print(f"  💾 Cache entries: {len(cache)}")
+    
     save_cache(cache)
+
+
 
 
 # ------------------------------
