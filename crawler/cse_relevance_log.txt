@@ -210,3 +210,249 @@
 2025-11-11 13:33:42,900 | INFO | … progress 59000/1785419 | out=798 | cache=59401 | ~325 domains/min
 2025-11-11 13:35:41,223 | INFO | 💾 checkpoint: rows=800 cache=59731 time=183.5m
 2025-11-11 13:39:27,941 | INFO | … progress 60000/1785419 | out=810 | cache=60401 | ~320 domains/min
+2025-11-11 14:33:29,734 | INFO | ⏩ Resuming: 800 already saved
+2025-11-11 14:33:32,189 | INFO | Total=1785819 | Pending=1785019 | Concurrency=40
+2025-11-11 14:33:32,190 | INFO | 🧠 Precomputing semantic embeddings (batched)…
+2025-11-11 14:33:35,658 | INFO | 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 (batched)…
+2025-11-11 14:37:11,581 | INFO | ✅ Official favicon library: SBI:2, ICICI:1, HDFC:1, PNB:1, BoB:0, NIC:0, IRCTC:0, Airtel:1, IOCL:0
+2025-11-11 14:37:11,587 | INFO | … progress 1000/1785019 | out=800 | cache=59731 | ~1000 domains/min
+2025-11-11 14:37:11,593 | INFO | … progress 2000/1785019 | out=800 | cache=59731 | ~2000 domains/min
+2025-11-11 14:37:11,599 | INFO | … progress 3000/1785019 | out=800 | cache=59731 | ~3000 domains/min
+2025-11-11 14:37:11,604 | INFO | … progress 4000/1785019 | out=800 | cache=59731 | ~4000 domains/min
+2025-11-11 14:37:11,610 | INFO | … progress 5000/1785019 | out=800 | cache=59731 | ~5000 domains/min
+2025-11-11 14:37:11,615 | INFO | … progress 6000/1785019 | out=800 | cache=59731 | ~6000 domains/min
+2025-11-11 14:37:11,621 | INFO | … progress 7000/1785019 | out=800 | cache=59731 | ~7000 domains/min
+2025-11-11 14:37:11,626 | INFO | … progress 8000/1785019 | out=800 | cache=59731 | ~8000 domains/min
+2025-11-11 14:37:11,632 | INFO | … progress 9000/1785019 | out=800 | cache=59731 | ~9000 domains/min
+2025-11-11 14:37:11,638 | INFO | … progress 10000/1785019 | out=800 | cache=59731 | ~10000 domains/min
+2025-11-11 14:37:11,643 | INFO | … progress 11000/1785019 | out=800 | cache=59731 | ~11000 domains/min
+2025-11-11 14:37:11,649 | INFO | … progress 12000/1785019 | out=800 | cache=59731 | ~12000 domains/min
+2025-11-11 14:37:11,655 | INFO | … progress 13000/1785019 | out=800 | cache=59731 | ~13000 domains/min
+2025-11-11 14:37:11,660 | INFO | … progress 14000/1785019 | out=800 | cache=59731 | ~14000 domains/min
+2025-11-11 14:37:11,666 | INFO | … progress 15000/1785019 | out=800 | cache=59731 | ~15000 domains/min
+2025-11-11 14:37:11,671 | INFO | … progress 16000/1785019 | out=800 | cache=59731 | ~16000 domains/min
+2025-11-11 14:37:11,677 | INFO | … progress 17000/1785019 | out=800 | cache=59731 | ~17000 domains/min
+2025-11-11 14:37:11,682 | INFO | … progress 18000/1785019 | out=800 | cache=59731 | ~18000 domains/min
+2025-11-11 14:37:11,688 | INFO | … progress 19000/1785019 | out=800 | cache=59731 | ~19000 domains/min
+2025-11-11 14:37:11,694 | INFO | … progress 20000/1785019 | out=800 | cache=59731 | ~20000 domains/min
+2025-11-11 14:37:11,699 | INFO | … progress 21000/1785019 | out=800 | cache=59731 | ~21000 domains/min
+2025-11-11 14:37:11,705 | INFO | … progress 22000/1785019 | out=800 | cache=59731 | ~22000 domains/min
+2025-11-11 14:37:11,711 | INFO | … progress 23000/1785019 | out=800 | cache=59731 | ~23000 domains/min
+2025-11-11 14:37:11,716 | INFO | … progress 24000/1785019 | out=800 | cache=59731 | ~24000 domains/min
+2025-11-11 14:37:11,722 | INFO | … progress 25000/1785019 | out=800 | cache=59731 | ~25000 domains/min
+2025-11-11 14:37:11,727 | INFO | … progress 26000/1785019 | out=800 | cache=59731 | ~26000 domains/min
+2025-11-11 14:37:11,733 | INFO | … progress 27000/1785019 | out=800 | cache=59731 | ~27000 domains/min
+2025-11-11 14:37:11,738 | INFO | … progress 28000/1785019 | out=800 | cache=59731 | ~28000 domains/min
+2025-11-11 14:37:11,744 | INFO | … progress 29000/1785019 | out=800 | cache=59731 | ~29000 domains/min
+2025-11-11 14:37:11,750 | INFO | … progress 30000/1785019 | out=800 | cache=59731 | ~30000 domains/min
+2025-11-11 14:37:11,755 | INFO | … progress 31000/1785019 | out=800 | cache=59731 | ~31000 domains/min
+2025-11-11 14:37:11,761 | INFO | … progress 32000/1785019 | out=800 | cache=59731 | ~32000 domains/min
+2025-11-11 14:37:11,767 | INFO | … progress 33000/1785019 | out=800 | cache=59731 | ~33000 domains/min
+2025-11-11 14:37:11,772 | INFO | … progress 34000/1785019 | out=800 | cache=59731 | ~34000 domains/min
+2025-11-11 14:37:11,778 | INFO | … progress 35000/1785019 | out=800 | cache=59731 | ~35000 domains/min
+2025-11-11 14:37:11,783 | INFO | … progress 36000/1785019 | out=800 | cache=59731 | ~36000 domains/min
+2025-11-11 14:37:11,789 | INFO | … progress 37000/1785019 | out=800 | cache=59731 | ~37000 domains/min
+2025-11-11 14:37:11,795 | INFO | … progress 38000/1785019 | out=800 | cache=59731 | ~38000 domains/min
+2025-11-11 14:37:11,801 | INFO | … progress 39000/1785019 | out=800 | cache=59731 | ~39000 domains/min
+2025-11-11 14:37:11,806 | INFO | … progress 40000/1785019 | out=800 | cache=59731 | ~40000 domains/min
+2025-11-11 14:37:11,812 | INFO | … progress 41000/1785019 | out=800 | cache=59731 | ~41000 domains/min
+2025-11-11 14:37:11,817 | INFO | … progress 42000/1785019 | out=800 | cache=59731 | ~42000 domains/min
+2025-11-11 14:37:11,823 | INFO | … progress 43000/1785019 | out=800 | cache=59731 | ~43000 domains/min
+2025-11-11 14:37:11,829 | INFO | … progress 44000/1785019 | out=800 | cache=59731 | ~44000 domains/min
+2025-11-11 14:37:11,835 | INFO | … progress 45000/1785019 | out=800 | cache=59731 | ~45000 domains/min
+2025-11-11 14:37:11,840 | INFO | … progress 46000/1785019 | out=800 | cache=59731 | ~46000 domains/min
+2025-11-11 14:37:11,846 | INFO | … progress 47000/1785019 | out=800 | cache=59731 | ~47000 domains/min
+2025-11-11 14:37:11,851 | INFO | … progress 48000/1785019 | out=800 | cache=59731 | ~48000 domains/min
+2025-11-11 14:37:11,857 | INFO | … progress 49000/1785019 | out=800 | cache=59731 | ~49000 domains/min
+2025-11-11 14:37:11,863 | INFO | … progress 50000/1785019 | out=800 | cache=59731 | ~50000 domains/min
+2025-11-11 14:37:11,869 | INFO | … progress 51000/1785019 | out=800 | cache=59731 | ~51000 domains/min
+2025-11-11 14:37:11,874 | INFO | … progress 52000/1785019 | out=800 | cache=59731 | ~52000 domains/min
+2025-11-11 14:37:11,880 | INFO | … progress 53000/1785019 | out=800 | cache=59731 | ~53000 domains/min
+2025-11-11 14:37:11,885 | INFO | … progress 54000/1785019 | out=800 | cache=59731 | ~54000 domains/min
+2025-11-11 14:37:11,891 | INFO | … progress 55000/1785019 | out=800 | cache=59731 | ~55000 domains/min
+2025-11-11 14:37:11,897 | INFO | … progress 56000/1785019 | out=800 | cache=59731 | ~56000 domains/min
+2025-11-11 14:37:11,903 | INFO | … progress 57000/1785019 | out=800 | cache=59731 | ~57000 domains/min
+2025-11-11 14:37:11,908 | INFO | … progress 58000/1785019 | out=800 | cache=59731 | ~58000 domains/min
+2025-11-11 14:37:32,060 | INFO | … progress 59000/1785019 | out=801 | cache=59801 | ~59000 domains/min
+2025-11-11 14:43:44,699 | INFO | … progress 60000/1785019 | out=811 | cache=60801 | ~9158 domains/min
+2025-11-11 14:49:41,946 | INFO | … progress 61000/1785019 | out=821 | cache=61801 | ~4878 domains/min
+2025-11-11 14:55:45,791 | INFO | … progress 62000/1785019 | out=837 | cache=62801 | ~3339 domains/min
+2025-11-11 15:01:31,928 | INFO | … progress 63000/1785019 | out=855 | cache=63801 | ~2588 domains/min
+2025-11-11 15:07:17,541 | INFO | … progress 64000/1785019 | out=864 | cache=64801 | ~2126 domains/min
+2025-11-11 15:13:38,981 | INFO | … progress 65000/1785019 | out=883 | cache=65801 | ~1783 domains/min
+2025-11-11 15:20:07,316 | INFO | … progress 66000/1785019 | out=890 | cache=66801 | ~1537 domains/min
+2025-11-11 15:26:01,649 | INFO | … progress 67000/1785019 | out=903 | cache=67801 | ~1372 domains/min
+2025-11-11 15:31:11,701 | INFO | … progress 68000/1785019 | out=913 | cache=68801 | ~1259 domains/min
+2025-11-11 15:35:10,288 | INFO | 🛑 Signal received. Exiting after last checkpoint…
+2025-11-11 15:36:42,411 | INFO | ⏩ Resuming: 800 already saved
+2025-11-11 15:36:44,862 | INFO | Total=1785819 | Pending=1785019 | Concurrency=40
+2025-11-11 15:36:44,862 | INFO | 🧠 Precomputing semantic embeddings (batched)…
+2025-11-11 15:36:48,400 | INFO | 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 (batched)…
+2025-11-11 15:40:27,274 | INFO | ✅ Official favicon library: SBI:2, ICICI:1, HDFC:1, PNB:1, BoB:0, NIC:0, IRCTC:0, Airtel:1, IOCL:0
+2025-11-11 15:40:27,281 | INFO | … progress 1000/1785019 | out=800 | cache=59731 | ~1000 domains/min
+2025-11-11 15:40:27,286 | INFO | … progress 2000/1785019 | out=800 | cache=59731 | ~2000 domains/min
+2025-11-11 15:40:27,292 | INFO | … progress 3000/1785019 | out=800 | cache=59731 | ~3000 domains/min
+2025-11-11 15:40:27,297 | INFO | … progress 4000/1785019 | out=800 | cache=59731 | ~4000 domains/min
+2025-11-11 15:40:27,303 | INFO | … progress 5000/1785019 | out=800 | cache=59731 | ~5000 domains/min
+2025-11-11 15:40:27,308 | INFO | … progress 6000/1785019 | out=800 | cache=59731 | ~6000 domains/min
+2025-11-11 15:40:27,314 | INFO | … progress 7000/1785019 | out=800 | cache=59731 | ~7000 domains/min
+2025-11-11 15:40:27,319 | INFO | … progress 8000/1785019 | out=800 | cache=59731 | ~8000 domains/min
+2025-11-11 15:40:27,325 | INFO | … progress 9000/1785019 | out=800 | cache=59731 | ~9000 domains/min
+2025-11-11 15:40:27,330 | INFO | … progress 10000/1785019 | out=800 | cache=59731 | ~10000 domains/min
+2025-11-11 15:40:27,336 | INFO | … progress 11000/1785019 | out=800 | cache=59731 | ~11000 domains/min
+2025-11-11 15:40:27,341 | INFO | … progress 12000/1785019 | out=800 | cache=59731 | ~12000 domains/min
+2025-11-11 15:40:27,347 | INFO | … progress 13000/1785019 | out=800 | cache=59731 | ~13000 domains/min
+2025-11-11 15:40:27,352 | INFO | … progress 14000/1785019 | out=800 | cache=59731 | ~14000 domains/min
+2025-11-11 15:40:27,358 | INFO | … progress 15000/1785019 | out=800 | cache=59731 | ~15000 domains/min
+2025-11-11 15:40:27,363 | INFO | … progress 16000/1785019 | out=800 | cache=59731 | ~16000 domains/min
+2025-11-11 15:40:27,369 | INFO | … progress 17000/1785019 | out=800 | cache=59731 | ~17000 domains/min
+2025-11-11 15:40:27,374 | INFO | … progress 18000/1785019 | out=800 | cache=59731 | ~18000 domains/min
+2025-11-11 15:40:27,380 | INFO | … progress 19000/1785019 | out=800 | cache=59731 | ~19000 domains/min
+2025-11-11 15:40:27,385 | INFO | … progress 20000/1785019 | out=800 | cache=59731 | ~20000 domains/min
+2025-11-11 15:40:27,391 | INFO | … progress 21000/1785019 | out=800 | cache=59731 | ~21000 domains/min
+2025-11-11 15:40:27,396 | INFO | … progress 22000/1785019 | out=800 | cache=59731 | ~22000 domains/min
+2025-11-11 15:40:27,402 | INFO | … progress 23000/1785019 | out=800 | cache=59731 | ~23000 domains/min
+2025-11-11 15:40:27,408 | INFO | … progress 24000/1785019 | out=800 | cache=59731 | ~24000 domains/min
+2025-11-11 15:40:27,413 | INFO | … progress 25000/1785019 | out=800 | cache=59731 | ~25000 domains/min
+2025-11-11 15:40:27,419 | INFO | … progress 26000/1785019 | out=800 | cache=59731 | ~26000 domains/min
+2025-11-11 15:40:27,424 | INFO | … progress 27000/1785019 | out=800 | cache=59731 | ~27000 domains/min
+2025-11-11 15:40:27,430 | INFO | … progress 28000/1785019 | out=800 | cache=59731 | ~28000 domains/min
+2025-11-11 15:40:27,435 | INFO | … progress 29000/1785019 | out=800 | cache=59731 | ~29000 domains/min
+2025-11-11 15:40:27,441 | INFO | … progress 30000/1785019 | out=800 | cache=59731 | ~30000 domains/min
+2025-11-11 15:40:27,447 | INFO | … progress 31000/1785019 | out=800 | cache=59731 | ~31000 domains/min
+2025-11-11 15:40:27,452 | INFO | … progress 32000/1785019 | out=800 | cache=59731 | ~32000 domains/min
+2025-11-11 15:40:27,458 | INFO | … progress 33000/1785019 | out=800 | cache=59731 | ~33000 domains/min
+2025-11-11 15:40:27,463 | INFO | … progress 34000/1785019 | out=800 | cache=59731 | ~34000 domains/min
+2025-11-11 15:40:27,469 | INFO | … progress 35000/1785019 | out=800 | cache=59731 | ~35000 domains/min
+2025-11-11 15:40:27,474 | INFO | … progress 36000/1785019 | out=800 | cache=59731 | ~36000 domains/min
+2025-11-11 15:40:27,480 | INFO | … progress 37000/1785019 | out=800 | cache=59731 | ~37000 domains/min
+2025-11-11 15:40:27,486 | INFO | … progress 38000/1785019 | out=800 | cache=59731 | ~38000 domains/min
+2025-11-11 15:40:27,491 | INFO | … progress 39000/1785019 | out=800 | cache=59731 | ~39000 domains/min
+2025-11-11 15:40:27,497 | INFO | … progress 40000/1785019 | out=800 | cache=59731 | ~40000 domains/min
+2025-11-11 15:40:27,503 | INFO | … progress 41000/1785019 | out=800 | cache=59731 | ~41000 domains/min
+2025-11-11 15:40:27,508 | INFO | … progress 42000/1785019 | out=800 | cache=59731 | ~42000 domains/min
+2025-11-11 15:40:27,514 | INFO | … progress 43000/1785019 | out=800 | cache=59731 | ~43000 domains/min
+2025-11-11 15:40:27,519 | INFO | … progress 44000/1785019 | out=800 | cache=59731 | ~44000 domains/min
+2025-11-11 15:40:27,525 | INFO | … progress 45000/1785019 | out=800 | cache=59731 | ~45000 domains/min
+2025-11-11 15:40:27,531 | INFO | … progress 46000/1785019 | out=800 | cache=59731 | ~46000 domains/min
+2025-11-11 15:40:27,536 | INFO | … progress 47000/1785019 | out=800 | cache=59731 | ~47000 domains/min
+2025-11-11 15:40:27,542 | INFO | … progress 48000/1785019 | out=800 | cache=59731 | ~48000 domains/min
+2025-11-11 15:40:27,548 | INFO | … progress 49000/1785019 | out=800 | cache=59731 | ~49000 domains/min
+2025-11-11 15:40:27,553 | INFO | … progress 50000/1785019 | out=800 | cache=59731 | ~50000 domains/min
+2025-11-11 15:40:27,559 | INFO | … progress 51000/1785019 | out=800 | cache=59731 | ~51000 domains/min
+2025-11-11 15:40:27,564 | INFO | … progress 52000/1785019 | out=800 | cache=59731 | ~52000 domains/min
+2025-11-11 15:40:27,570 | INFO | … progress 53000/1785019 | out=800 | cache=59731 | ~53000 domains/min
+2025-11-11 15:40:27,576 | INFO | … progress 54000/1785019 | out=800 | cache=59731 | ~54000 domains/min
+2025-11-11 15:40:27,581 | INFO | … progress 55000/1785019 | out=800 | cache=59731 | ~55000 domains/min
+2025-11-11 15:40:27,587 | INFO | … progress 56000/1785019 | out=800 | cache=59731 | ~56000 domains/min
+2025-11-11 15:40:27,593 | INFO | … progress 57000/1785019 | out=800 | cache=59731 | ~57000 domains/min
+2025-11-11 15:40:27,598 | INFO | … progress 58000/1785019 | out=800 | cache=59731 | ~58000 domains/min
+2025-11-11 15:40:47,636 | INFO | … progress 59000/1785019 | out=801 | cache=59801 | ~59000 domains/min
+2025-11-11 15:40:49,300 | INFO | 🛑 Signal received. Exiting after last checkpoint…
+2025-11-11 15:41:57,536 | INFO | ⏩ Resuming: 800 already saved
+2025-11-11 15:41:59,963 | INFO | Total=1785819 | Pending=1785019 | Concurrency=100
+2025-11-11 15:41:59,963 | INFO | 🧠 Precomputing semantic embeddings (batched)…
+2025-11-11 15:42:03,449 | INFO | 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 (batched)…
+2025-11-11 15:42:32,224 | INFO | 🛑 Signal received. Exiting after last checkpoint…
+2025-11-11 15:44:12,476 | INFO | ⏩ Resuming: 800 already saved
+2025-11-11 15:44:14,977 | INFO | Total=1785819 | Pending=1785019 | Concurrency=100
+2025-11-11 15:44:14,978 | INFO | 🧠 Precomputing semantic embeddings (batched)…
+2025-11-11 15:44:18,598 | INFO | 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 (batched)…
+2025-11-11 15:44:26,701 | INFO | 🛑 Signal received. Exiting after last checkpoint…
+2025-11-11 15:45:41,015 | INFO | ⏩ Resuming: 800 already saved
+2025-11-11 15:45:41,139 | INFO | Total=90235 | Pending=90127 | Concurrency=100
+2025-11-11 15:45:41,140 | INFO | 🧠 Precomputing semantic embeddings (batched)…
+2025-11-11 15:45:44,504 | INFO | 🔹 Loading sentence-transformers/paraphrase-MiniLM-L6-v2 (batched)…
+2025-11-11 15:45:58,512 | INFO | ✅ Official favicon library: SBI:2, ICICI:1, HDFC:1, PNB:1, BoB:0, NIC:0, IRCTC:0, Airtel:1, IOCL:0
+2025-11-11 15:48:02,286 | INFO | … progress 1000/90127 | out=1108 | cache=60701 | ~485 domains/min
+2025-11-11 15:50:36,585 | INFO | … progress 2000/90127 | out=1243 | cache=61673 | ~432 domains/min
+2025-11-11 15:52:59,396 | INFO | … progress 3000/90127 | out=1359 | cache=62647 | ~428 domains/min
+2025-11-11 15:54:59,556 | INFO | … progress 4000/90127 | out=1462 | cache=63619 | ~444 domains/min
+2025-11-11 15:56:58,263 | INFO | … progress 5000/90127 | out=1549 | cache=64585 | ~455 domains/min
+2025-11-11 15:58:57,926 | INFO | … progress 6000/90127 | out=1651 | cache=65553 | ~462 domains/min
+2025-11-11 16:00:41,024 | INFO | … progress 7000/90127 | out=1743 | cache=66513 | ~476 domains/min
+2025-11-11 16:02:19,614 | INFO | … progress 8000/90127 | out=1827 | cache=67490 | ~489 domains/min
+2025-11-11 16:04:15,256 | INFO | … progress 9000/90127 | out=1904 | cache=68457 | ~492 domains/min
+2025-11-11 16:06:38,110 | INFO | … progress 10000/90127 | out=1967 | cache=69438 | ~484 domains/min
+2025-11-11 16:08:36,401 | INFO | … progress 11000/90127 | out=2042 | cache=70410 | ~486 domains/min
+2025-11-11 16:10:27,127 | INFO | … progress 12000/90127 | out=2112 | cache=71377 | ~490 domains/min
+2025-11-11 16:12:13,932 | INFO | … progress 13000/90127 | out=2176 | cache=72343 | ~495 domains/min
+2025-11-11 16:14:13,777 | INFO | … progress 14000/90127 | out=2243 | cache=73307 | ~495 domains/min
+2025-11-11 16:16:17,331 | INFO | … progress 15000/90127 | out=2316 | cache=74287 | ~495 domains/min
+2025-11-11 16:18:23,883 | INFO | … progress 16000/90127 | out=2381 | cache=75264 | ~493 domains/min
+2025-11-11 16:20:31,390 | INFO | … progress 17000/90127 | out=2430 | cache=76235 | ~492 domains/min
+2025-11-11 16:22:19,222 | INFO | … progress 18000/90127 | out=2469 | cache=77202 | ~495 domains/min
+2025-11-11 16:24:45,381 | INFO | … progress 19000/90127 | out=2518 | cache=78178 | ~490 domains/min
+2025-11-11 16:26:44,327 | INFO | … progress 20000/90127 | out=2563 | cache=79153 | ~491 domains/min
+2025-11-11 16:28:57,890 | INFO | … progress 21000/90127 | out=2604 | cache=80119 | ~488 domains/min
+2025-11-11 16:31:21,021 | INFO | … progress 22000/90127 | out=2656 | cache=81089 | ~485 domains/min
+2025-11-11 16:33:54,700 | INFO | … progress 23000/90127 | out=2695 | cache=82070 | ~480 domains/min
+2025-11-11 16:36:18,751 | INFO | … progress 24000/90127 | out=2733 | cache=83048 | ~477 domains/min
+2025-11-11 16:38:28,140 | INFO | … progress 25000/90127 | out=2773 | cache=84018 | ~476 domains/min
+2025-11-11 16:39:52,953 | INFO | 💾 checkpoint: rows=2800 cache=84753 time=53.9m
+2025-11-11 16:41:00,212 | INFO | … progress 26000/90127 | out=2813 | cache=84996 | ~472 domains/min
+2025-11-11 16:42:56,842 | INFO | … progress 27000/90127 | out=2847 | cache=85966 | ~474 domains/min
+2025-11-11 16:44:57,297 | INFO | … progress 28000/90127 | out=2885 | cache=86940 | ~475 domains/min
+2025-11-11 16:47:01,381 | INFO | … progress 29000/90127 | out=2929 | cache=87917 | ~475 domains/min
+2025-11-11 16:49:23,949 | INFO | … progress 30000/90127 | out=2961 | cache=88894 | ~473 domains/min
+2025-11-11 16:51:40,224 | INFO | … progress 31000/90127 | out=2994 | cache=89861 | ~472 domains/min
+2025-11-11 16:53:39,620 | INFO | … progress 32000/90127 | out=3024 | cache=90830 | ~473 domains/min
+2025-11-11 16:56:16,931 | INFO | … progress 33000/90127 | out=3059 | cache=91797 | ~469 domains/min
+2025-11-11 16:58:16,811 | INFO | … progress 34000/90127 | out=3083 | cache=92771 | ~470 domains/min
+2025-11-11 16:59:59,905 | INFO | … progress 35000/90127 | out=3110 | cache=93737 | ~473 domains/min
+2025-11-11 17:02:32,974 | INFO | … progress 36000/90127 | out=3136 | cache=94707 | ~470 domains/min
+2025-11-11 17:04:12,807 | INFO | … progress 37000/90127 | out=3160 | cache=95672 | ~473 domains/min
+2025-11-11 17:06:28,307 | INFO | … progress 38000/90127 | out=3184 | cache=96637 | ~472 domains/min
+2025-11-11 17:08:07,451 | INFO | … progress 39000/90127 | out=3208 | cache=97606 | ~475 domains/min
+2025-11-11 17:10:26,620 | INFO | … progress 40000/90127 | out=3228 | cache=98583 | ~474 domains/min
+2025-11-11 17:12:37,936 | INFO | … progress 41000/90127 | out=3250 | cache=99555 | ~473 domains/min
+2025-11-11 17:14:56,251 | INFO | … progress 42000/90127 | out=3276 | cache=100522 | ~472 domains/min
+2025-11-11 17:17:07,800 | INFO | … progress 43000/90127 | out=3309 | cache=101500 | ~472 domains/min
+2025-11-11 17:19:07,940 | INFO | … progress 44000/90127 | out=3343 | cache=102486 | ~472 domains/min
+2025-11-11 17:20:59,830 | INFO | … progress 45000/90127 | out=3367 | cache=103451 | ~474 domains/min
+2025-11-11 17:23:46,074 | INFO | … progress 46000/90127 | out=3398 | cache=104422 | ~470 domains/min
+2025-11-11 17:25:51,119 | INFO | … progress 47000/90127 | out=3424 | cache=105406 | ~471 domains/min
+2025-11-11 17:28:24,357 | INFO | … progress 48000/90127 | out=3450 | cache=106380 | ~469 domains/min
+2025-11-11 17:30:36,597 | INFO | … progress 49000/90127 | out=3469 | cache=107338 | ~468 domains/min
+2025-11-11 17:32:55,868 | INFO | … progress 50000/90127 | out=3497 | cache=108307 | ~467 domains/min
+2025-11-11 17:34:51,840 | INFO | … progress 51000/90127 | out=3523 | cache=109279 | ~468 domains/min
+2025-11-11 17:37:23,868 | INFO | … progress 52000/90127 | out=3554 | cache=110249 | ~467 domains/min
+2025-11-11 17:39:24,003 | INFO | … progress 53000/90127 | out=3580 | cache=111216 | ~467 domains/min
+2025-11-11 17:42:00,402 | INFO | … progress 54000/90127 | out=3603 | cache=112184 | ~465 domains/min
+2025-11-11 17:44:14,754 | INFO | … progress 55000/90127 | out=3615 | cache=113157 | ~465 domains/min
+2025-11-11 17:46:30,178 | INFO | … progress 56000/90127 | out=3639 | cache=114120 | ~465 domains/min
+2025-11-11 17:48:52,822 | INFO | … progress 57000/90127 | out=3664 | cache=115085 | ~464 domains/min
+2025-11-11 17:51:19,000 | INFO | … progress 58000/90127 | out=3686 | cache=116058 | ~463 domains/min
+2025-11-11 17:53:21,554 | INFO | … progress 59000/90127 | out=3703 | cache=117030 | ~463 domains/min
+2025-11-11 17:55:17,782 | INFO | … progress 60000/90127 | out=3727 | cache=118005 | ~464 domains/min
+2025-11-11 17:57:34,657 | INFO | … progress 61000/90127 | out=3744 | cache=118971 | ~464 domains/min
+2025-11-11 17:59:31,015 | INFO | … progress 62000/90127 | out=3759 | cache=119949 | ~464 domains/min
+2025-11-11 18:02:04,032 | INFO | … progress 63000/90127 | out=3777 | cache=120920 | ~463 domains/min
+2025-11-11 18:04:27,275 | INFO | … progress 64000/90127 | out=3796 | cache=121891 | ~462 domains/min
+2025-11-11 18:06:54,649 | INFO | … progress 65000/90127 | out=3810 | cache=122860 | ~461 domains/min
+2025-11-11 18:09:38,568 | INFO | … progress 66000/90127 | out=3828 | cache=123828 | ~459 domains/min
+2025-11-11 18:12:02,056 | INFO | … progress 67000/90127 | out=3848 | cache=124797 | ~459 domains/min
+2025-11-11 18:13:58,095 | INFO | … progress 68000/90127 | out=3869 | cache=125765 | ~459 domains/min
+2025-11-11 18:16:28,636 | INFO | … progress 69000/90127 | out=3886 | cache=126733 | ~458 domains/min
+2025-11-11 18:18:24,097 | INFO | … progress 70000/90127 | out=3908 | cache=127713 | ~459 domains/min
+2025-11-11 18:20:57,029 | INFO | … progress 71000/90127 | out=3923 | cache=128681 | ~458 domains/min
+2025-11-11 18:23:29,151 | INFO | … progress 72000/90127 | out=3946 | cache=129658 | ~457 domains/min
+2025-11-11 18:25:42,258 | INFO | … progress 73000/90127 | out=3968 | cache=130635 | ~457 domains/min
+2025-11-11 18:27:46,742 | INFO | … progress 74000/90127 | out=3980 | cache=131611 | ~457 domains/min
+2025-11-11 18:29:46,234 | INFO | … progress 75000/90127 | out=4001 | cache=132587 | ~458 domains/min
+2025-11-11 18:31:43,660 | INFO | … progress 76000/90127 | out=4020 | cache=133551 | ~459 domains/min
+2025-11-11 18:34:49,091 | INFO | … progress 77000/90127 | out=4040 | cache=134527 | ~456 domains/min
+2025-11-11 18:37:20,362 | INFO | … progress 78000/90127 | out=4055 | cache=135510 | ~455 domains/min
+2025-11-11 18:39:48,608 | INFO | … progress 79000/90127 | out=4067 | cache=136490 | ~454 domains/min
+2025-11-11 18:41:59,145 | INFO | … progress 80000/90127 | out=4084 | cache=137452 | ~455 domains/min
+2025-11-11 18:44:44,251 | INFO | … progress 81000/90127 | out=4091 | cache=138421 | ~453 domains/min
+2025-11-11 18:46:25,218 | INFO | … progress 82000/90127 | out=4106 | cache=139382 | ~454 domains/min
+2025-11-11 18:49:06,336 | INFO | … progress 83000/90127 | out=4118 | cache=140347 | ~453 domains/min
+2025-11-11 18:51:06,346 | INFO | … progress 84000/90127 | out=4131 | cache=141320 | ~454 domains/min
+2025-11-11 18:53:09,204 | INFO | … progress 85000/90127 | out=4146 | cache=142285 | ~454 domains/min
+2025-11-11 18:55:51,152 | INFO | … progress 86000/90127 | out=4168 | cache=143255 | ~453 domains/min
+2025-11-11 18:58:35,078 | INFO | … progress 87000/90127 | out=4189 | cache=144233 | ~452 domains/min
+2025-11-11 19:01:06,246 | INFO | … progress 88000/90127 | out=4205 | cache=145197 | ~451 domains/min
+2025-11-11 19:03:26,331 | INFO | … progress 89000/90127 | out=4219 | cache=146158 | ~451 domains/min
+2025-11-11 19:06:23,392 | INFO | … progress 90000/90127 | out=4231 | cache=147135 | ~449 domains/min
+2025-11-11 19:07:01,574 | INFO | ✅ done: wrote 4234 rows to CSE_Relevance_Output.csv; cache=147261
