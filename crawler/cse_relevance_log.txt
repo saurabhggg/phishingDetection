@@ -206,3 +206,7 @@
 2025-11-11 13:11:16,166 | INFO | … progress 55000/1785419 | out=743 | cache=55401 | ~346 domains/min
 2025-11-11 13:17:29,068 | INFO | … progress 56000/1785419 | out=753 | cache=56401 | ~339 domains/min
 2025-11-11 13:22:26,276 | INFO | … progress 57000/1785419 | out=768 | cache=57401 | ~335 domains/min
+2025-11-11 13:28:35,906 | INFO | … progress 58000/1785419 | out=782 | cache=58401 | ~329 domains/min
+2025-11-11 13:33:42,900 | INFO | … progress 59000/1785419 | out=798 | cache=59401 | ~325 domains/min
+2025-11-11 13:35:41,223 | INFO | 💾 checkpoint: rows=800 cache=59731 time=183.5m
+2025-11-11 13:39:27,941 | INFO | … progress 60000/1785419 | out=810 | cache=60401 | ~320 domains/min
