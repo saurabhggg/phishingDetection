@@ -350,7 +350,7 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
     rows = []
 
     # --- Load BOTH whitelisted files ---
-    whitelist_files = [whitelist_xlsx, "whitelisted_new.xlsx"]
+    whitelist_files = [whitelist_xlsx, "data/whitelisted_new.xlsx"]
     whitelist_dfs = []
     wl_total_count = 0
 
