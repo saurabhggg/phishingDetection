@@ -138,7 +138,7 @@ def main():
             #     save_cache(cache)
     # Encode & align
     # feats_df = encode_and_align(df.copy(), train_features)
-    print("rows = ", row[0])
+    print("rows = ", rows[0])
     
     scaler = StandardScaler()
     rows_new = scaler.fit_transform(rows)
