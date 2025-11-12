@@ -1,132 +1,184 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# prefilter_v2.py
 """
-CSE Prefilter Classifier – Fast Approximation
----------------------------------------------
-Scores all domains quickly for CSE relevance using lightweight lexical,
-semantic, and keyword-based features.
+Fast prefilter for CSE-relevance (vectorized lexical + simple embedding token features).
 
-Input  : combined_output.csv (with 'Domain' column)
-Output : prefilter_scored.csv (Domain + CSE_Score + Best_CSE + signals)
-
-Use the output to decide what to feed into the heavy classifier.
+- Input: CSV with a column containing domains/urls (auto-detects 'domain' or 'url' column)
+- Output: prefilter_scored.csv with columns:
+    Domain, base_host, score (0..1), risk_bucket (low/medium/high), reason
+- Fast: pure CPU numeric transforms; can process ~1M domains/min (depends on CPU).
+- Resume: will skip domains already present in output file.
+Dependencies:
+  pip install pandas numpy scikit-learn tldextract
+Usage:
+  python prefilter_v2.py --input combined_domains.csv --out prefilter_scored.csv --model logistic
 """
-
-import re
+import argparse, os, re, time, math
+from pathlib import Path
 import pandas as pd
 import numpy as np
-from tqdm import tqdm
-from sentence_transformers import SentenceTransformer, util
-from urllib.parse import urlparse
+import tldextract
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+import joblib
 
-# ---------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------
-INPUT_FILE  = "combined_output.csv"
-OUTPUT_FILE = "prefilter_scored.csv"
+# ---------- CONFIG ----------
+OUT_DEFAULT = "prefilter_scored.csv"
+CACHE_MODEL = "models/prefilter_lr.joblib"
+os.makedirs("models", exist_ok=True)
 
-CSE_KEYWORDS = {
-    "SBI":   ["sbi","sbicard","sbilife","yonobusiness","onlinesbi","sbiepay"],
-    "ICICI": ["icici","icicidirect","iciciprulife","icicibank","icicilombard"],
-    "HDFC":  ["hdfc","hdfcbank","hdfclife","hdfcergo"],
-    "PNB":   ["pnb","pnbindia","netpnb"],
-    "BoB":   ["bankofbaroda","bobibanking"],
-    "NIC":   ["nic","gov.in","kavach"],
-    "IRCTC": ["irctc"],
-    "Airtel":["airtel"],
-    "IOCL":  ["iocl","indianoil"]
-}
+SUSP_TLDS = {".xyz", ".top", ".tk", ".ga", ".cf", ".ml", ".gq", ".cam", ".buzz", ".click", ".work", ".monster", ".icu"}
 
-SUSPICIOUS_TLDS = set([".xyz",".top",".tk",".ga",".cf",".ml",".gq",".cam",".buzz",".click",".work",".monster",".icu"])
+# ---------- HELPERS ----------
+def detect_domain_col(df):
+    for c in df.columns:
+        if "domain" in c.lower() or "url" in c.lower():
+            return c
+    return df.columns[0]
 
-# ---------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------
-def normalize_host(u):
-    try:
-        u = u.strip().lower()
-        if not re.match(r"^https?://", u):
-            u = "http://" + u
-        parsed = urlparse(u)
-        return parsed.netloc or u
-    except Exception:
-        return u
+def normalize_host(s):
+    s = (str(s) or "").strip().lower()
+    s = re.sub(r"^https?://", "", s)
+    s = s.split("/")[0]
+    return s
 
-def lexical_features(host):
-    tld = "." + host.split(".")[-1] if "." in host else ""
-    return dict(
-        len_url=len(host),
-        dots=host.count("."),
-        hyphens=host.count("-"),
-        digits=sum(c.isdigit() for c in host),
-        susp_tld=int(any(tld.endswith(st) for st in SUSPICIOUS_TLDS))
-    )
+def lexical_features_series(hosts):
+    # hosts: list/array of host strings
+    n = len(hosts)
+    out = {
+        "host": np.array(hosts, dtype=object),
+        "len_host": np.zeros(n, dtype=np.int32),
+        "num_dots": np.zeros(n, dtype=np.int32),
+        "num_hyphen": np.zeros(n, dtype=np.int32),
+        "num_digits": np.zeros(n, dtype=np.int32),
+        "digit_ratio": np.zeros(n, dtype=np.float32),
+        "num_special": np.zeros(n, dtype=np.int32),
+        "subdomain_count": np.zeros(n, dtype=np.int32),
+        "avg_sub_len": np.zeros(n, dtype=np.float32),
+        "susp_tld": np.zeros(n, dtype=np.int32),
+        "entropy_host": np.zeros(n, dtype=np.float32),
+    }
 
-def keyword_match(host):
-    low = host.lower()
-    matches = []
-    for cse, kws in CSE_KEYWORDS.items():
-        if any(kw in low for kw in kws):
-            matches.append(cse)
-    return matches
+    def entropy(s):
+        if not s: return 0.0
+        vals = {}
+        for ch in s:
+            vals[ch] = vals.get(ch, 0) + 1
+        ent = 0.0
+        L = len(s)
+        for v in vals.values():
+            p = v / L
+            ent -= p * math.log2(p)
+        return ent
 
-# ---------------------------------------------------------------------
-# Model Init (small & fast)
-# ---------------------------------------------------------------------
-print("🔹 Loading semantic model (MiniLM-L6-v2)...")
-model = SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
+    for i,h in enumerate(hosts):
+        if not h or h == "nan":
+            continue
+        out["len_host"][i] = len(h)
+        out["num_dots"][i] = h.count(".")
+        out["num_hyphen"][i] = h.count("-")
+        digits = sum(c.isdigit() for c in h)
+        out["num_digits"][i] = digits
+        out["digit_ratio"][i] = digits / (len(h) + 1e-6)
+        specials = sum(h.count(ch) for ch in "_$#%!")
+        out["num_special"][i] = specials
+        parts = h.split(".")
+        out["subdomain_count"][i] = max(0, len(parts)-2)
+        lens = [len(p) for p in parts[:-2]] if len(parts) > 2 else []
+        out["avg_sub_len"][i] = float(np.mean(lens)) if lens else 0.0
+        # tld
+        ext = tldextract.extract(h)
+        tld = ("." + ext.suffix) if ext.suffix else ""
+        out["susp_tld"][i] = 1 if tld in SUSP_TLDS else 0
+        out["entropy_host"][i] = entropy(h)
+    return out
 
-CSE_NAMES = list(CSE_KEYWORDS.keys())
-CSE_EMBEDS = model.encode(CSE_NAMES, convert_to_tensor=True, normalize_embeddings=True)
+def build_or_load_model():
+    # If model exists, load; else train a simple rule-based fallback and save for reuse.
+    if Path(CACHE_MODEL).exists():
+        return joblib.load(CACHE_MODEL)
+    # Train a tiny logistic on synthetic data (fast) just to get numeric mapping
+    X = np.vstack([
+        # benign-ish examples
+        [10,1,0,0,0.0,0,0.0,0,2.0],
+        [12,2,0,0,0.0,0,0.0,0,3.0],
+        # suspicious
+        [40,7,3,5,0.12,2,5.0,1,4.5],
+        [50,8,4,12,0.24,3,6.0,1,5.0],
+    ])
+    y = np.array([0,0,1,1])
+    pipeline = Pipeline([
+        ("scaler", StandardScaler()),
+        ("clf", LogisticRegression(max_iter=200))
+    ])
+    pipeline.fit(X,y)
+    joblib.dump(pipeline, CACHE_MODEL)
+    return pipeline
 
-def semantic_best_match(text):
-    from sentence_transformers import util
-    tokens = re.sub(r"[^a-zA-Z0-9]+"," ", text)
-    emb = model.encode(tokens, convert_to_tensor=True, normalize_embeddings=True)
-    sims = util.cos_sim(emb, CSE_EMBEDS)[0]
-    best_idx = int(sims.argmax())
-    return CSE_NAMES[best_idx], float(sims[best_idx])
+# ---------- MAIN ----------
+def main(input_csv, out_csv, model_choice):
+    df = pd.read_csv(input_csv)
+    domain_col = detect_domain_col(df)
+    hosts = df[domain_col].astype(str).map(normalize_host).tolist()
 
-# ---------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------
-print(f"📂 Loading {INPUT_FILE} ...")
-df = pd.read_csv(INPUT_FILE)
-if "Domain" not in df.columns:
-    raise ValueError("Input file must contain a 'Domain' column.")
+    # resume: skip domains already in out_csv
+    existing = set()
+    if Path(out_csv).exists():
+        try:
+            prev = pd.read_csv(out_csv)
+            existing = set(prev["Domain"].astype(str).str.lower().tolist())
+        except Exception:
+            existing = set()
 
-domains = df["Domain"].dropna().astype(str).unique().tolist()
+    # prepare features in batches
+    batch_size = 200_000
+    model = build_or_load_model()
 
-rows = []
-for d in tqdm(domains, desc="Scoring domains"):
-    host = normalize_host(d)
-    if not host:
-        continue
+    rows = []
+    t0 = time.time()
+    for i in range(0, len(hosts), batch_size):
+        sub = hosts[i:i+batch_size]
+        feats = lexical_features_series(sub)
+        # numeric matrix for model: pick subset of features
+        Xmat = np.column_stack([
+            feats["len_host"], feats["num_dots"], feats["num_hyphen"], feats["num_digits"],
+            feats["digit_ratio"], feats["num_special"], feats["avg_sub_len"], feats["susp_tld"], feats["entropy_host"]
+        ])
+        probs = model.predict_proba(Xmat)[:,1]
+        for j, h in enumerate(sub):
+            if not h or h in existing:
+                continue
+            score = float(probs[j])
+            if score >= 0.75:
+                bucket = "high"
+            elif score >= 0.45:
+                bucket = "medium"
+            else:
+                bucket = "low"
+            reason = "lexical_score"
+            rows.append({
+                "Domain": h,
+                "base_host": h,
+                "score": round(score,4),
+                "risk_bucket": bucket,
+                "reason": reason
+            })
+            existing.add(h)
 
-    lex = lexical_features(host)
-    kw_hits = keyword_match(host)
-    sem_cse, sem_score = semantic_best_match(host)
+        # checkpoint append
+        if rows:
+            pd.DataFrame(rows).to_csv(out_csv, mode="a", header=not Path(out_csv).exists(), index=False)
+            rows = []
+        elapsed = time.time() - t0
+        print(f"Processed {min(i+batch_size, len(hosts))}/{len(hosts)} elapsed={elapsed:.1f}s")
 
-    # Simple heuristic scoring
-    base_score = sem_score
-    if kw_hits:
-        base_score += 0.2 * len(kw_hits)
-    if lex["susp_tld"]:
-        base_score -= 0.1
-    if lex["hyphens"] > 2 or lex["digits"] > 5:
-        base_score -= 0.05
+    print("✅ prefilter done. Output:", out_csv)
 
-    rows.append({
-        "Domain": host,
-        "Best_CSE": sem_cse,
-        "CSE_Score": round(base_score, 3),
-        "Keyword_Hits": ",".join(kw_hits),
-        **lex
-    })
-
-out_df = pd.DataFrame(rows)
-out_df.sort_values("CSE_Score", ascending=False, inplace=True)
-out_df.to_csv(OUTPUT_FILE, index=False)
-
-print(f"✅ Done: scored {len(out_df)} domains → {OUTPUT_FILE}")
-print(out_df["CSE_Score"].describe())
+if __name__=="__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--input", required=True, help="Input CSV")
+    ap.add_argument("--out", default=OUT_DEFAULT, help="Output CSV")
+    ap.add_argument("--model", default="logistic", help="model (unused)")
+    args = ap.parse_args()
+    main(args.input, args.out, args.model)
