@@ -14,11 +14,13 @@ import pandas as pd, numpy as np
 from tqdm import tqdm
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from model.feature_extractor import extract_features
+from sklearn.preprocessing import StandardScaler
 
 # ---------------------------------------------------------------------
 # CONFIG
 # ---------------------------------------------------------------------
-INPUT_FILE = "CSE_Relevance_Output.csv"
+INPUT_FILE = "prefilter_for_heavy.csv"
 OUTPUT_FILE = "submission_results.csv"
 CACHE_FILE = "submission_cache.json"
 
@@ -115,25 +117,42 @@ def main():
     df = pd.read_csv(INPUT_FILE)
     print(f"📥 Loaded {len(df)} candidate domains")
 
+    for col in df.columns:
+        if df[col].dtype == "object" and col != "Domain":
+            print(f"⚙️ Encoding text column: {col}")
+            df[col] = df[col].astype("category").cat.codes
+
+    url_col = [c for c in df.columns if "url" in c.lower() or "domain" in c.lower()][0]
+    urls = df[url_col].dropna().astype(str).tolist()
+    rows = []
+    for u in tqdm(urls):
+            if u in cache:
+                feats = cache[u]
+            else:
+                feats = extract_features(u)
+                cache[u] = feats
+            rows.append(feats)
+
+            # Checkpoint every 100 processed rows
+            # if len(rows) % 100 == 0:
+            #     save_cache(cache)
     # Encode & align
-    feats_df = encode_and_align(df.copy(), train_features)
+    # feats_df = encode_and_align(df.copy(), train_features)
+    print("rows = ", row[0])
+    
+    scaler = StandardScaler()
+    rows_new = scaler.fit_transform(rows)
 
     results = []
-    for _, row in tqdm(df.iterrows(), total=len(df), desc="🔍 Predicting"):
-        domain = str(row.get("Domain", ""))
-        if domain in cache:
-            results.append(cache[domain])
-            continue
-
-        X_row = feats_df.iloc[[_]]
-        X_scaled = scaler.transform(X_row) if scaler is not None else X_row
-        prob = float(model.predict_proba(X_scaled)[:, 1][0])
+    for i,row in enumerate(rows_new):
+        domain = urls[i]
+        prob = float(model.predict_proba(row))
         label = int(prob >= 0.5)
 
         screenshot_path = ""
-        if label == 1:
-            screenshot_path = safe_filename(domain)
-            capture_screenshot(domain, screenshot_path)
+        # if label == 1:
+        #     screenshot_path = safe_filename(domain)
+        #     capture_screenshot(domain, screenshot_path)
 
         out = {
             "Domain": domain,
