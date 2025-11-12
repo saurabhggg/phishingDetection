@@ -20,7 +20,7 @@ from sklearn.preprocessing import StandardScaler
 # ---------------------------------------------------------------------
 # CONFIG
 # ---------------------------------------------------------------------
-INPUT_FILE = "prefilter_scored.csv"
+INPUT_FILE = "CSE_Relevance_Output.csv"
 OUTPUT_FILE = "submission_results.csv"
 CACHE_FILE = "submission_cache.json"
 
