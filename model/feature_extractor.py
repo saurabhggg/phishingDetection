@@ -13,26 +13,25 @@ both whitelisted and phishing URL datasets (.xlsx).
 ✔ Caching (resumes from last checkpoint)
 """
 
-import os, re, math, io, json, hashlib, requests
+import os, re, io, math, json, hashlib, requests, ipaddress
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from urllib.parse import urlparse
+from urllib.parse import urlsplit, urlunsplit, quote, quote_plus
 from collections import Counter
 from bs4 import BeautifulSoup
-from tldextract import extract
+from tldextract import extract as tld_extract
 from PIL import Image
 import imagehash
-from urllib.parse import urlsplit, urlunsplit, quote, quote_plus
 
 # ------------------------------
 # CONFIG
 # ------------------------------
 CACHE_FILE = "feature_cache.json"
+
 CSE_KEYWORDS = [
-    "sbi","sbicard","sbilife","hdfc","hdfclife","hdfcergo",
-    "icici","icicibank","icicidirect","pnb","bankofbaroda",
-    "nic","gov","irctc","airtel","iocl","indianoil"
+    "sbi","sbicard","sbilife","hdfc","hdfclife","hdfcergo","icici","icicibank",
+    "icicidirect","pnb","bankofbaroda","nic","gov","irctc","airtel","iocl","indianoil"
 ]
 
 CSE_FAVICONS = {
@@ -47,101 +46,65 @@ CSE_FAVICONS = {
     "IOCL": ["https://www.iocl.com/favicon.ico"]
 }
 
-# ------------------------------
-# UTILS
-# ------------------------------
-
-import ipaddress
-from urllib.parse import urlsplit, urlunsplit, quote, quote_plus
-
+# -------------------------------------
+# UTILITY HELPERS
+# -------------------------------------
 def safe_url(url: str) -> str:
-    """
-    Safely normalize and validate URLs.
-    Prevents Invalid IPv6 URL errors and malformed host issues.
-    Returns cleaned URL or "" if unsafe.
-    """
+    """Normalize URLs and filter out malformed ones."""
     try:
         if not url or not isinstance(url, str):
             return ""
-
-        # Trim and clean whitespace
         url = url.strip().replace(" ", "").replace("\n", "")
         if not url:
             return ""
-
-        # Add scheme if missing
-        if not re.match(r"^https?://", url, flags=re.I):
+        if not re.match(r"^https?://", url, re.I):
             url = "http://" + url
 
-        # Quick reject for weird patterns
-        if "::::" in url or ".." in url or url.count("::") > 1:
-            return ""
-
-        # Attempt to parse safely
-        try:
-            parsed = urlsplit(url)
-        except ValueError:
-            return ""  # malformed URL structure
-
+        parsed = urlsplit(url)
         host = parsed.hostname or ""
         if not host:
             return ""
-
-        # IPv6 handling
         if ":" in host:
             try:
-                ipaddress.ip_address(host)  # valid IPv6 or IPv4
+                ipaddress.ip_address(host)
                 if ":" in host and not host.startswith("["):
                     host = f"[{host}]"
             except ValueError:
-                return ""  # malformed IPv6, skip
+                return ""
 
-        # Build valid URL again
         netloc = host
         if parsed.port:
             netloc += f":{parsed.port}"
-
         path = quote(parsed.path or "", safe="/")
         query = quote_plus(parsed.query or "", safe="=&")
         fragment = quote_plus(parsed.fragment or "")
-
-        rebuilt = urlunsplit((parsed.scheme, netloc, path, query, fragment))
-        return rebuilt
+        return urlunsplit((parsed.scheme, netloc, path, query, fragment))
     except Exception:
         return ""
 
-    
 def shannon_entropy(s: str) -> float:
     if not s: return 0.0
-    prob = [freq / len(s) for freq in Counter(s).values()]
-    return -sum(p * math.log2(p) for p in prob)
+    probs = [f / len(s) for f in Counter(s).values()]
+    return -sum(p * math.log2(p) for p in probs)
 
 def has_ip_address(host: str) -> bool:
     return bool(re.fullmatch(r"(?:\d{1,3}\.){3}\d{1,3}", host))
 
-
-def fetch_page_html(url: str, timeout: int = 10) -> str:
-    """
-    Fetch page content safely — skips invalid IPv6 and malformed URLs.
-    """
+def fetch_page_html(url: str, timeout: int = 8) -> str:
+    """Fetch HTML safely; skip invalid or broken URLs."""
     url = safe_url(url)
     if not url:
-        print(f"⚠️ Skipping invalid or malformed URL: {url}")
         return ""
     try:
         r = requests.get(url, timeout=timeout, headers={"User-Agent": "Mozilla/5.0"})
         if "text/html" in r.headers.get("Content-Type", ""):
             return r.text
-    except requests.exceptions.RequestException as e:
-        print(f"⚠️ Request failed for {url[:60]}... | {e}")
-        return ""
-    except Exception as e:
-        print(f"⚠️ Unexpected error fetching {url[:60]}... | {e}")
+    except Exception:
         return ""
     return ""
 
-
 def extract_html_features(html: str) -> dict:
+    """Extract HTML content-based features."""
     feats = {
         "html_length": 0, "num_links": 0, "external_links_ratio": 0,
         "num_forms": 0, "has_login_form": 0, "num_scripts": 0,
@@ -149,192 +112,150 @@ def extract_html_features(html: str) -> dict:
     }
     if not html:
         return feats
-    feats["html_length"] = len(html)
     soup = BeautifulSoup(html, "html.parser")
+    feats["html_length"] = len(html)
     if soup.title and soup.title.string:
         feats["title_length"] = len(soup.title.string)
     links = [a.get("href") for a in soup.find_all("a", href=True)]
     feats["num_links"] = len(links)
-    external_links = [l for l in links if l and not l.startswith("#") and not l.startswith("/")]
-    feats["external_links_ratio"] = len(external_links) / (len(links) + 1e-5)
+    external = [l for l in links if l and not l.startswith(("/", "#"))]
+    feats["external_links_ratio"] = len(external) / (len(links) + 1e-5)
     forms = soup.find_all("form")
     feats["num_forms"] = len(forms)
-    feats["has_login_form"] = 1 if any("password" in str(f).lower() for f in forms) else 0
+    feats["has_login_form"] = int(any("password" in str(f).lower() for f in forms))
     feats["num_scripts"] = len(soup.find_all("script"))
     feats["num_iframes"] = len(soup.find_all("iframe"))
-    for m in soup.find_all("meta"):
-        cont = str(m.get("content") or "").lower()
-        if any(kw in cont for kw in CSE_KEYWORDS):
-            feats["meta_keyword_match"] = 1
-            break
+    feats["meta_keyword_match"] = int(any(
+        kw in (m.get("content") or "").lower() for m in soup.find_all("meta") for kw in CSE_KEYWORDS
+    ))
     return feats
 
 def get_favicon_hash(url: str) -> str | None:
+    """Compute perceptual hash of a page's favicon."""
     try:
         if not url.startswith("http"):
             url = "http://" + url
-        domain = extract(urlparse(url).netloc)
-        base = f"https://{domain.domain}.{domain.suffix}"
-        fav_urls = [base + "/favicon.ico", base + "/favicon.png"]
-        for f in fav_urls:
+        domain_info = tld_extract(urlsplit(url).netloc)
+        base = f"https://{domain_info.domain}.{domain_info.suffix}"
+        for suffix in ["/favicon.ico", "/favicon.png"]:
             try:
-                r = requests.get(f, timeout=5)
+                r = requests.get(base + suffix, timeout=5)
                 if r.status_code == 200 and "image" in r.headers.get("Content-Type", ""):
                     img = Image.open(io.BytesIO(r.content))
                     return str(imagehash.phash(img.convert("RGB")))
             except Exception:
                 continue
     except Exception:
-        return None
+        pass
     return None
 
 def compare_with_cse_favicons(fav_hash: str, cse_lib: dict) -> tuple[str, int]:
+    """Compare site favicon hash with known CSE favicons."""
     if not fav_hash:
         return "", 999
     best_cse, best_dist = "", 999
+    try:
+        fav_h = imagehash.hex_to_hash(fav_hash)
+    except Exception:
+        return "", 999
     for cse, urls in cse_lib.items():
         for u in urls:
             try:
                 r = requests.get(u, timeout=5)
                 img = Image.open(io.BytesIO(r.content))
-                official_hash = str(imagehash.phash(img.convert("RGB")))
-                dist = imagehash.hex_to_hash(fav_hash) - imagehash.hex_to_hash(official_hash)
+                dist = fav_h - imagehash.phash(img.convert("RGB"))
                 if dist < best_dist:
                     best_dist, best_cse = dist, cse
             except Exception:
                 continue
     return best_cse, best_dist
 
-def clean_url(url):
-    """Ensure valid URL format and strip unwanted prefixes."""
-    url = str(url).strip()
-    if not url or url.lower() == "nan":
-        return ""
-    # Ensure scheme exists
-    if not re.match(r'^\w+://', url):
-        url = f"http://{url}"
-    return url
-
-# ------------------------------
-# FEATURE EXTRACTION
-# ------------------------------
+# -------------------------------------
+# MAIN FEATURE EXTRACTOR
+# -------------------------------------
 def extract_features(url: str) -> dict:
-    """
-    Extract all lexical, domain, HTML, and favicon-based features for a URL.
-    Now fully safe against Invalid IPv6 URL and malformed domains.
-    """
+    """Return full feature dictionary for a given URL."""
     feats = {}
-
-    # Clean + validate
     safe_u = safe_url(url)
     if not safe_u:
-        print(f"⚠️ Skipping invalid or malformed URL: {url}")
-        # return empty but with default zeros for consistency
-        for f in [
-            "url_length","num_dots","num_hyphens","num_underscores","num_slashes",
-            "num_digits","digit_ratio","num_special","num_question","num_equal",
-            "num_dollar","num_exclamation","num_hashtag","num_percent",
-            "repeated_digits_url","domain_length","num_hyphens_domain",
-            "num_special_domain","has_special_domain","subdomain_count",
-            "avg_subdomain_len","subdomain_hyphen","subdomain_repeated_digits",
-            "entropy_url","entropy_domain","https","has_ip_host","is_related_to_cse"
-        ]:
-            feats[f] = 0
-        feats["favicon_match_cse"] = ""
-        feats["favicon_distance"] = 999
-        return feats
+        return {f: 0 for f in BASE_FEATURES}
 
-    # Parse safely (this will not raise ValueError now)
-    try:
-        parsed = urlsplit(safe_u)
-    except Exception:
-        print(f"⚠️ Parsing failed for {url}")
-        return {}
-
-    # Extract main URL components
-    u = safe_u
-    domain_info = extract(parsed.netloc)
+    parsed = urlsplit(safe_u)
+    domain_info = tld_extract(parsed.netloc)
     domain = f"{domain_info.domain}.{domain_info.suffix}" if domain_info.suffix else domain_info.domain
     subdomain = domain_info.subdomain or ""
     host = parsed.netloc.lower()
 
-    # --- FULL URL LEXICAL FEATURES ---
-    feats["url_length"] = len(u)
-    feats["num_dots"] = u.count(".")
-    feats["num_hyphens"] = u.count("-")
-    feats["num_underscores"] = u.count("_")
-    feats["num_slashes"] = u.count("/")
-    feats["num_digits"] = sum(c.isdigit() for c in u)
-    feats["digit_ratio"] = feats["num_digits"] / (len(u) + 1e-5)
-    feats["num_special"] = sum(u.count(ch) for ch in "?=.$!#%")
-    feats["num_question"] = u.count("?")
-    feats["num_equal"] = u.count("=")
-    feats["num_dollar"] = u.count("$")
-    feats["num_exclamation"] = u.count("!")
-    feats["num_hashtag"] = u.count("#")
-    feats["num_percent"] = u.count("%")
-    feats["repeated_digits_url"] = 1 if re.search(r"\d{3,}", u) else 0
+    feats.update({
+        "url_length": len(safe_u),
+        "num_dots": safe_u.count("."),
+        "num_hyphens": safe_u.count("-"),
+        "num_underscores": safe_u.count("_"),
+        "num_slashes": safe_u.count("/"),
+        "num_digits": sum(c.isdigit() for c in safe_u),
+        "digit_ratio": sum(c.isdigit() for c in safe_u)/(len(safe_u)+1e-5),
+        "num_special": sum(safe_u.count(ch) for ch in "?=.$!#%"),
+        "num_question": safe_u.count("?"),
+        "num_equal": safe_u.count("="),
+        "num_dollar": safe_u.count("$"),
+        "num_exclamation": safe_u.count("!"),
+        "num_hashtag": safe_u.count("#"),
+        "num_percent": safe_u.count("%"),
+        "repeated_digits_url": int(bool(re.search(r"\d{3,}", safe_u))),
+        "domain_length": len(domain),
+        "num_hyphens_domain": domain.count("-"),
+        "num_special_domain": sum(domain.count(ch) for ch in "$#%_"),
+        "has_special_domain": int(sum(domain.count(ch) for ch in "$#%_") > 0),
+        "subdomain_count": len(subdomain.split(".")) if subdomain else 0,
+        "avg_subdomain_len": np.mean([len(s) for s in subdomain.split(".")]) if subdomain else 0,
+        "subdomain_hyphen": int("-" in subdomain),
+        "subdomain_repeated_digits": int(bool(re.search(r"\d{2,}", subdomain))),
+        "entropy_url": shannon_entropy(safe_u),
+        "entropy_domain": shannon_entropy(domain),
+        "https": int(parsed.scheme.lower() == "https"),
+        "has_ip_host": int(has_ip_address(host)),
+        "is_related_to_cse": int(any(kw in safe_u.lower() for kw in CSE_KEYWORDS))
+    })
 
-    # --- DOMAIN FEATURES ---
-    feats["domain_length"] = len(domain)
-    feats["num_hyphens_domain"] = domain.count("-")
-    feats["num_special_domain"] = sum(domain.count(ch) for ch in "$#%_")
-    feats["has_special_domain"] = 1 if feats["num_special_domain"] > 0 else 0
-    feats["subdomain_count"] = len(subdomain.split(".")) if subdomain else 0
-    feats["avg_subdomain_len"] = np.mean([len(s) for s in subdomain.split(".")]) if subdomain else 0
-    feats["subdomain_hyphen"] = 1 if "-" in subdomain else 0
-    feats["subdomain_repeated_digits"] = 1 if re.search(r"\d{2,}", subdomain) else 0
-    feats["entropy_url"] = shannon_entropy(u)
-    feats["entropy_domain"] = shannon_entropy(domain)
-    feats["https"] = 1 if parsed.scheme.lower() == "https" else 0
-    feats["has_ip_host"] = 1 if has_ip_address(host) else 0
-    feats["is_related_to_cse"] = 1 if any(kw in u.lower() for kw in CSE_KEYWORDS) else 0
-
-    # --- CONTENT FEATURES ---
-    html = fetch_page_html(u)
+    html = fetch_page_html(safe_u)
     feats.update(extract_html_features(html))
 
-    # --- FAVICON FEATURES ---
-    fav_hash = get_favicon_hash(u)
+    fav_hash = get_favicon_hash(safe_u)
     cse, dist = compare_with_cse_favicons(fav_hash, CSE_FAVICONS)
-    feats["favicon_match_cse"] = cse
+    feats["favicon_match_cse"] = 0 if not cse else 1
     feats["favicon_distance"] = dist
 
-    return feats
+    return {k: (float(v) if isinstance(v, (int, float, np.number)) else v) for k, v in feats.items()}
 
 
-# ------------------------------
-# MAIN
-# ------------------------------
+BASE_FEATURES = [
+    "url_length","num_dots","num_hyphens","num_underscores","num_slashes","num_digits","digit_ratio",
+    "num_special","num_question","num_equal","num_dollar","num_exclamation","num_hashtag","num_percent",
+    "repeated_digits_url","domain_length","num_hyphens_domain","num_special_domain","has_special_domain",
+    "subdomain_count","avg_subdomain_len","subdomain_hyphen","subdomain_repeated_digits","entropy_url",
+    "entropy_domain","https","has_ip_host","is_related_to_cse","html_length","num_links",
+    "external_links_ratio","num_forms","has_login_form","num_scripts","num_iframes","title_length",
+    "meta_keyword_match","favicon_match_cse","favicon_distance"
+]
+
+# -------------------------------------
+# DATASET BUILDER
+# -------------------------------------
 def json_safe(obj):
-    """Convert numpy/int64/float64/etc. to pure Python types for JSON serialization."""
-    if isinstance(obj, (np.integer,)):
-        return int(obj)
-    elif isinstance(obj, (np.floating,)):
-        return float(obj)
-    elif isinstance(obj, (np.bool_)):
-        return bool(obj)
-    elif isinstance(obj, (set,)):
-        return list(obj)
-    elif isinstance(obj, bytes):
-        return obj.decode(errors='ignore')
-    elif isinstance(obj, (dict, list)):
-        if isinstance(obj, dict):
-            return {k: json_safe(v) for k, v in obj.items()}
-        else:
-            return [json_safe(v) for v in obj]
-    else:
-        return obj
-
+    """Make objects JSON serializable."""
+    if isinstance(obj, (np.integer,)): return int(obj)
+    if isinstance(obj, (np.floating,)): return float(obj)
+    if isinstance(obj, (np.bool_)): return bool(obj)
+    if isinstance(obj, (dict, list)):
+        return {k: json_safe(v) for k, v in obj.items()} if isinstance(obj, dict) else [json_safe(v) for v in obj]
+    return obj
 
 def save_cache(cache: dict):
-    """Safely write cache to disk."""
     try:
-        safe_cache = json_safe(cache)
-        with open(CACHE_FILE, "w") as fp:
-            json.dump(safe_cache, fp, indent=2)
+        with open(CACHE_FILE, "w") as f:
+            json.dump(json_safe(cache), f, indent=2)
     except Exception as e:
-        print(f"⚠️ Failed to save cache: {e}")
+        print(f"⚠️ Cache save failed: {e}")
 
 
 def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
@@ -387,7 +308,6 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
             feats = extract_features(u)
             cache[u] = feats
         feats["label"] = 0
-        feats["source"] = "whitelist"
         rows.append(feats)
 
     # --- Process Phishing URLs ---
@@ -413,7 +333,6 @@ def build_dataset(whitelist_xlsx, phishing_dir, output_csv):
                 feats = extract_features(u)
                 cache[u] = feats
             feats["label"] = 1
-            feats["source"] = f
             rows.append(feats)
 
             # Checkpoint every 100 processed rows
